@@ -24,6 +24,8 @@ import {
   Moon,
   User,
   Receipt,
+  Heart,
+  ThumbsUp,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -89,6 +91,16 @@ const navItems: NavItem[] = [
     icon: FileText,
   },
   {
+    title: "Wishlists",
+    href: "/wishlists",
+    icon: Heart,
+  },
+  {
+    title: "Likes",
+    href: "/likes",
+    icon: ThumbsUp,
+  },
+  {
     title: "Comments",
     href: "/comments",
     icon: MessageSquare,
@@ -110,6 +122,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const logout = () => {
+    // Implement your logout logic here
+    console.log("Logging out...")
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -156,16 +173,20 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                Profile
+              <DropdownMenuItem asChild>
+                <Link href="/profile">
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
+              <DropdownMenuItem asChild>
+                <Link href="/settings">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => logout()}>
                 <LogOut className="mr-2 h-4 w-4" />
                 Log out
               </DropdownMenuItem>

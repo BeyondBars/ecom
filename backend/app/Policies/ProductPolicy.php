@@ -4,18 +4,16 @@ namespace App\Policies;
 
 use App\Models\Product;
 use App\Models\User;
-use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Auth\Access\Response;
 
 class ProductPolicy
 {
-    use HandlesAuthorization;
-
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission('view-products');
+        return $user->hasPermission('view_products');
     }
 
     /**
@@ -23,7 +21,7 @@ class ProductPolicy
      */
     public function view(User $user, Product $product): bool
     {
-        return $user->hasPermission('view-products');
+        return $user->hasPermission('view_products');
     }
 
     /**
@@ -31,7 +29,7 @@ class ProductPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermission('create-products');
+        return $user->hasPermission('create_products');
     }
 
     /**
@@ -39,7 +37,7 @@ class ProductPolicy
      */
     public function update(User $user, Product $product): bool
     {
-        return $user->hasPermission('update-products');
+        return $user->hasPermission('update_products');
     }
 
     /**
@@ -47,14 +45,15 @@ class ProductPolicy
      */
     public function delete(User $user, Product $product): bool
     {
-        return $user->hasPermission('delete-products');
+        return $user->hasPermission('delete_products');
     }
 
     /**
-     * Determine whether the user can like the model.
+     * Determine whether the user can like the product.
      */
     public function like(User $user, Product $product): bool
     {
-        return $user->hasPermission('like-products');
+        // All authenticated users can like products
+        return true;
     }
 }

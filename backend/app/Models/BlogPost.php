@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class BlogPost extends Model
 {
@@ -19,13 +23,10 @@ class BlogPost extends Model
         'slug',
         'content',
         'excerpt',
-        'author_id',
-        'featured_image',
+        'image',
+        'user_id',
         'status',
         'published_at',
-        'meta_title',
-        'meta_description',
-        'meta_keywords',
     ];
 
     /**
@@ -34,39 +35,39 @@ class BlogPost extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'status' => 'boolean',
         'published_at' => 'datetime',
     ];
 
     /**
-     * Get the author that owns the blog post.
+     * Get the user that owns the blog post.
      */
-    public function author()
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'author_id');
+        return $this->belongsTo(User::class);
     }
 
     /**
      * Get the comments for the blog post.
      */
-    public function comments()
+    public function comments(): HasMany
     {
-        return $this->morphMany(Comment::class, 'commentable');
+        return $this->hasMany(Comment::class);
     }
 
     /**
      * Get the likes for the blog post.
      */
-    public function likes()
+    public function likes(): MorphMany
     {
         return $this->morphMany(Like::class, 'likeable');
     }
 
     /**
-     * Scope a query to only include published blog posts.
+     * Get the users who liked this blog post.
      */
-    public function scopePublished($query)
+    public function likedBy(): BelongsToMany
     {
-        return $query->where('status', 'published')
-            ->where('published_at', '<=', now());
+        return $this->morphToMany(User::class, 'likeable', 'likes');
     }
 }

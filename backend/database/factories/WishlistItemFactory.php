@@ -21,7 +21,8 @@ class WishlistItemFactory extends Factory
         return [
             'wishlist_id' => Wishlist::factory(),
             'product_id' => Product::factory(),
-            'notes' => $this->faker->optional(30)->sentence(),
+            'notes' => $this->faker->optional(0.7)->sentence(), // 70% chance of having notes
+            'priority' => $this->faker->numberBetween(0, 10),
         ];
     }
 }

@@ -98,4 +98,26 @@ export const permissions = [
       { roleId: "5", view: false, create: false, update: false, delete: false },
     ],
   },
+  {
+    id: "10",
+    module: "Wishlists",
+    rolePermissions: [
+      { roleId: "1", view: true, create: true, update: true, delete: true },
+      { roleId: "2", view: true, create: true, update: true, delete: false },
+      { roleId: "3", view: true, create: true, update: true, delete: false },
+      { roleId: "4", view: true, create: true, update: true, delete: false },
+      { roleId: "5", view: true, create: true, update: true, delete: false },
+    ],
+  },
+  {
+    id: "11",
+    module: "Likes",
+    rolePermissions: [
+      { roleId: "1", view: true, create: true, update: true, delete: true },
+      { roleId: "2", view: true, create: true, update: false, delete: false },
+      { roleId: "3", view: true, create: true, update: false, delete: false },
+      { roleId: "4", view: true, create: true, update: false, delete: false },
+      { roleId: "5", view: true, create: true, update: false, delete: false },
+    ],
+  },
 ]

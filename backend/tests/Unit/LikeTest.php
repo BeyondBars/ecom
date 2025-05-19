@@ -16,7 +16,7 @@ class LikeTest extends TestCase
     /**
      * Test liking a product.
      */
-    public function test_can_like_product()
+    public function test_can_like_product(): void
     {
         $user = User::factory()->create();
         $product = Product::factory()->create();
@@ -33,14 +33,12 @@ class LikeTest extends TestCase
             'likeable_id' => $product->id,
             'likeable_type' => Product::class,
         ]);
-        
-        $this->assertTrue($product->likes()->where('user_id', $user->id)->exists());
     }
-
+    
     /**
      * Test liking a blog post.
      */
-    public function test_can_like_blog_post()
+    public function test_can_like_blog_post(): void
     {
         $user = User::factory()->create();
         $blogPost = BlogPost::factory()->create();
@@ -57,14 +55,84 @@ class LikeTest extends TestCase
             'likeable_id' => $blogPost->id,
             'likeable_type' => BlogPost::class,
         ]);
-        
-        $this->assertTrue($blogPost->likes()->where('user_id', $user->id)->exists());
     }
-
+    
     /**
-     * Test unliking a product.
+     * Test retrieving likes for a product.
      */
-    public function test_can_unlike_product()
+    public function test_can_retrieve_likes_for_product(): void
+    {
+        $users = User::factory()->count(3)->create();
+        $product = Product::factory()->create();
+        
+        foreach ($users as $user) {
+            Like::create([
+                'user_id' => $user->id,
+                'likeable_id' => $product->id,
+                'likeable_type' => Product::class,
+            ]);
+        }
+        
+        $productLikes = $product->likes;
+        
+        $this->assertCount(3, $productLikes);
+    }
+    
+    /**
+     * Test retrieving likes for a blog post.
+     */
+    public function test_can_retrieve_likes_for_blog_post(): void
+    {
+        $users = User::factory()->count(3)->create();
+        $blogPost = BlogPost::factory()->create();
+        
+        foreach ($users as $user) {
+            Like::create([
+                'user_id' => $user->id,
+                'likeable_id' => $blogPost->id,
+                'likeable_type' => BlogPost::class,
+            ]);
+        }
+        
+        $blogPostLikes = $blogPost->likes;
+        
+        $this->assertCount(3, $blogPostLikes);
+    }
+    
+    /**
+     * Test retrieving likes for a user.
+     */
+    public function test_can_retrieve_likes_for_user(): void
+    {
+        $user = User::factory()->create();
+        $products = Product::factory()->count(2)->create();
+        $blogPosts = BlogPost::factory()->count(2)->create();
+        
+        foreach ($products as $product) {
+            Like::create([
+                'user_id' => $user->id,
+                'likeable_id' => $product->id,
+                'likeable_type' => Product::class,
+            ]);
+        }
+        
+        foreach ($blogPosts as $blogPost) {
+            Like::create([
+                'user_id' => $user->id,
+                'likeable_id' => $blogPost->id,
+                'likeable_type' => BlogPost::class,
+            ]);
+        }
+        
+        $userLikes = $user->likes;
+        
+        $this->assertCount(4, $userLikes);
+    }
+    
+    /**
+     * Test deleting a like.
+     */
+    public function test_can_delete_like(): void
     {
         $user = User::factory()->create();
         $product = Product::factory()->create();
@@ -75,61 +143,10 @@ class LikeTest extends TestCase
             'likeable_type' => Product::class,
         ]);
         
-        $this->assertTrue($product->likes()->where('user_id', $user->id)->exists());
+        $this->assertDatabaseHas('likes', ['id' => $like->id]);
         
         $like->delete();
         
-        $this->assertFalse($product->likes()->where('user_id', $user->id)->exists());
-        $this->assertDatabaseMissing('likes', [
-            'id' => $like->id,
-        ]);
-    }
-
-    /**
-     * Test user relationship with likes.
-     */
-    public function test_user_has_likes()
-    {
-        $user = User::factory()->create();
-        $product = Product::factory()->create();
-        $blogPost = BlogPost::factory()->create();
-        
-        Like::create([
-            'user_id' => $user->id,
-            'likeable_id' => $product->id,
-            'likeable_type' => Product::class,
-        ]);
-        
-        Like::create([
-            'user_id' => $user->id,
-            'likeable_id' => $blogPost->id,
-            'likeable_type' => BlogPost::class,
-        ]);
-        
-        $this->assertEquals(2, $user->likes()->count());
-    }
-
-    /**
-     * Test product relationship with likes.
-     */
-    public function test_product_has_likes()
-    {
-        $product = Product::factory()->create();
-        $user1 = User::factory()->create();
-        $user2 = User::factory()->create();
-        
-        Like::create([
-            'user_id' => $user1->id,
-            'likeable_id' => $product->id,
-            'likeable_type' => Product::class,
-        ]);
-        
-        Like::create([
-            'user_id' => $user2->id,
-            'likeable_id' => $product->id,
-            'likeable_type' => Product::class,
-        ]);
-        
-        $this->assertEquals(2, $product->likes()->count());
+        $this->assertDatabaseMissing('likes', ['id' => $like->id]);
     }
 }

@@ -11,14 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('likes', function (Blueprint $table) {
+        Schema::create('notifications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->morphs('likeable'); // This allows likes on different models (products, blog posts, etc.)
+            $table->string('title');
+            $table->text('message');
+            $table->string('type')->default('info'); // info, success, warning, error
+            $table->string('icon')->nullable();
+            $table->string('link')->nullable();
+            $table->boolean('is_read')->default(false);
+            $table->timestamp('read_at')->nullable();
             $table->timestamps();
-            
-            // Ensure a user can only like an item once
-            $table->unique(['user_id', 'likeable_id', 'likeable_type']);
         });
     }
 
@@ -27,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('likes');
+        Schema::dropIfExists('notifications');
     }
 };

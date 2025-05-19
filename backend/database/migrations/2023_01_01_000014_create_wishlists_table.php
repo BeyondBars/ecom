@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('wishlists', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('name')->default('Default');
-            $table->boolean('is_public')->default(false);
+            $table->string('name')->default('Default Wishlist');
             $table->text('description')->nullable();
+            $table->boolean('is_public')->default(false);
             $table->timestamps();
         });
     }

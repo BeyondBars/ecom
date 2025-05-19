@@ -111,6 +111,7 @@ export async function logout(): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(() => {
       localStorage.removeItem("auth_token")
+      window.location.href = "/login"
       resolve()
     }, 500)
   })

@@ -4,6 +4,10 @@ import { DollarSign, ShoppingCart, Package, Users, CreditCard } from "lucide-rea
 import { SalesChart } from "@/components/dashboard/sales-chart"
 import { RecentOrders } from "@/components/dashboard/recent-orders"
 import { TopProducts } from "@/components/dashboard/top-products"
+import { AnalyticsOverview } from "@/components/dashboard/analytics-overview"
+import { AnalyticsCharts } from "@/components/dashboard/analytics-charts"
+import { ReportsList } from "@/components/dashboard/reports-list"
+import { NotificationsList } from "@/components/dashboard/notifications-list"
 
 export default function DashboardPage() {
   return (
@@ -148,6 +152,19 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-4">
+          <AnalyticsOverview />
+          <AnalyticsCharts />
+        </TabsContent>
+
+        <TabsContent value="reports" className="space-y-4">
+          <ReportsList />
+        </TabsContent>
+
+        <TabsContent value="notifications" className="space-y-4">
+          <NotificationsList />
         </TabsContent>
       </Tabs>
     </div>

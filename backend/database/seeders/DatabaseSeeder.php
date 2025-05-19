@@ -19,13 +19,13 @@ class DatabaseSeeder extends Seeder
             BrandSeeder::class,
             ProductSeeder::class,
             OrderSeeder::class,
-            InvoiceSeeder::class,
-            SettingSeeder::class,
-            BannerSeeder::class,
             BlogPostSeeder::class,
             CommentSeeder::class,
+            SettingSeeder::class,
+            InvoiceSeeder::class,
             WishlistSeeder::class,
             LikeSeeder::class,
+            NotificationSeeder::class,
         ]);
     }
 }

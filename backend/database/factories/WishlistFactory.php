@@ -20,28 +20,8 @@ class WishlistFactory extends Factory
         return [
             'user_id' => User::factory(),
             'name' => $this->faker->words(3, true),
-            'is_public' => $this->faker->boolean(30),
-            'description' => $this->faker->optional(70)->sentence(),
+            'description' => $this->faker->sentence(),
+            'is_public' => $this->faker->boolean(20), // 20% chance of being public
         ];
-    }
-
-    /**
-     * Indicate that the wishlist is public.
-     */
-    public function public(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'is_public' => true,
-        ]);
-    }
-
-    /**
-     * Indicate that the wishlist is private.
-     */
-    public function private(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'is_public' => false,
-        ]);
     }
 }

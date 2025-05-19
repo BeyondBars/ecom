@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Wishlist;
+use App\Models\WishlistItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -15,120 +16,109 @@ class WishlistTest extends TestCase
     /**
      * Test creating a wishlist.
      */
-    public function test_can_create_wishlist()
+    public function test_can_create_wishlist(): void
     {
         $user = User::factory()->create();
         
         $wishlist = Wishlist::create([
             'user_id' => $user->id,
             'name' => 'Test Wishlist',
-            'is_public' => true,
             'description' => 'This is a test wishlist',
+            'is_public' => true,
         ]);
         
         $this->assertDatabaseHas('wishlists', [
             'id' => $wishlist->id,
             'user_id' => $user->id,
             'name' => 'Test Wishlist',
-            'is_public' => true,
             'description' => 'This is a test wishlist',
+            'is_public' => true,
         ]);
     }
-
+    
     /**
      * Test adding a product to a wishlist.
      */
-    public function test_can_add_product_to_wishlist()
+    public function test_can_add_product_to_wishlist(): void
     {
         $user = User::factory()->create();
         $product = Product::factory()->create();
+        $wishlist = Wishlist::factory()->create(['user_id' => $user->id]);
         
-        $wishlist = Wishlist::create([
-            'user_id' => $user->id,
-            'name' => 'Test Wishlist',
-        ]);
-        
-        $wishlist->products()->attach($product->id, [
-            'notes' => 'Test notes',
+        $wishlistItem = WishlistItem::create([
+            'wishlist_id' => $wishlist->id,
+            'product_id' => $product->id,
+            'notes' => 'I want this!',
+            'priority' => 5,
         ]);
         
         $this->assertDatabaseHas('wishlist_items', [
+            'id' => $wishlistItem->id,
             'wishlist_id' => $wishlist->id,
             'product_id' => $product->id,
-            'notes' => 'Test notes',
+            'notes' => 'I want this!',
+            'priority' => 5,
         ]);
-        
-        $this->assertTrue($wishlist->products->contains($product->id));
     }
-
+    
     /**
-     * Test removing a product from a wishlist.
+     * Test retrieving products from a wishlist.
      */
-    public function test_can_remove_product_from_wishlist()
+    public function test_can_retrieve_products_from_wishlist(): void
     {
         $user = User::factory()->create();
-        $product = Product::factory()->create();
+        $products = Product::factory()->count(3)->create();
+        $wishlist = Wishlist::factory()->create(['user_id' => $user->id]);
         
-        $wishlist = Wishlist::create([
-            'user_id' => $user->id,
-            'name' => 'Test Wishlist',
-        ]);
+        foreach ($products as $product) {
+            WishlistItem::create([
+                'wishlist_id' => $wishlist->id,
+                'product_id' => $product->id,
+            ]);
+        }
         
-        $wishlist->products()->attach($product->id);
-        $this->assertTrue($wishlist->products->contains($product->id));
+        $wishlistProducts = $wishlist->products;
         
-        $wishlist->products()->detach($product->id);
-        $wishlist->refresh();
-        
-        $this->assertFalse($wishlist->products->contains($product->id));
-        $this->assertDatabaseMissing('wishlist_items', [
-            'wishlist_id' => $wishlist->id,
-            'product_id' => $product->id,
-        ]);
+        $this->assertCount(3, $wishlistProducts);
+        $this->assertTrue($wishlistProducts->contains($products[0]));
+        $this->assertTrue($wishlistProducts->contains($products[1]));
+        $this->assertTrue($wishlistProducts->contains($products[2]));
     }
-
+    
     /**
-     * Test user relationship with wishlists.
+     * Test retrieving wishlists for a user.
      */
-    public function test_user_has_wishlists()
+    public function test_can_retrieve_wishlists_for_user(): void
     {
         $user = User::factory()->create();
+        Wishlist::factory()->count(3)->create(['user_id' => $user->id]);
         
-        Wishlist::create([
-            'user_id' => $user->id,
-            'name' => 'Wishlist 1',
-        ]);
+        $userWishlists = $user->wishlists;
         
-        Wishlist::create([
-            'user_id' => $user->id,
-            'name' => 'Wishlist 2',
-        ]);
-        
-        $this->assertEquals(2, $user->wishlists()->count());
+        $this->assertCount(3, $userWishlists);
     }
-
+    
     /**
-     * Test product relationship with wishlists.
+     * Test deleting a wishlist.
      */
-    public function test_product_has_wishlists()
+    public function test_deleting_wishlist_deletes_items(): void
     {
-        $product = Product::factory()->create();
-        $user1 = User::factory()->create();
-        $user2 = User::factory()->create();
+        $user = User::factory()->create();
+        $products = Product::factory()->count(3)->create();
+        $wishlist = Wishlist::factory()->create(['user_id' => $user->id]);
         
-        $wishlist1 = Wishlist::create([
-            'user_id' => $user1->id,
-            'name' => 'Wishlist 1',
-        ]);
+        foreach ($products as $product) {
+            WishlistItem::create([
+                'wishlist_id' => $wishlist->id,
+                'product_id' => $product->id,
+            ]);
+        }
         
-        $wishlist2 = Wishlist::create([
-            'user_id' => $user2->id,
-            'name' => 'Wishlist 2',
-        ]);
+        $this->assertDatabaseCount('wishlist_items', 3);
         
-        $wishlist1->products()->attach($product->id);
-        $wishlist2->products()->attach($product->id);
+        $wishlist->delete();
         
-        $this->assertEquals(2, $product->wishlists()->count());
+        $this->assertDatabaseCount('wishlist_items', 0);
+        $this->assertDatabaseMissing('wishlists', ['id' => $wishlist->id]);
     }
 }

@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
-use App\Models\Product;
 use App\Models\BlogPost;
+use App\Models\Product;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,49 +19,62 @@ class LikeFactory extends Factory
      */
     public function definition(): array
     {
+        $likeableTypes = [
+            Product::class,
+            BlogPost::class,
+        ];
+        
+        $likeableType = $this->faker->randomElement($likeableTypes);
+        $likeableId = null;
+        
+        if ($likeableType === Product::class) {
+            $likeableId = Product::factory();
+        } elseif ($likeableType === BlogPost::class) {
+            $likeableId = BlogPost::factory();
+        }
+        
         return [
             'user_id' => User::factory(),
-            'likeable_id' => Product::factory(),
-            'likeable_type' => Product::class,
+            'likeable_type' => $likeableType,
+            'likeable_id' => $likeableId,
         ];
     }
-
+    
     /**
      * Configure the model factory.
-     *
-     * @return $this
      */
-    public function configure()
+    public function configure(): static
     {
         return $this->afterMaking(function (Like $like) {
-            //
-        })->afterCreating(function (Like $like) {
-            //
+            if ($like->likeable_id instanceof Factory) {
+                $likeable = $like->likeable_id->create();
+                $like->likeable_id = $likeable->id;
+            }
         });
     }
-
+    
     /**
      * Indicate that the like is for a product.
      */
-    public function product(): static
+    public function forProduct(Product $product = null): static
     {
-        return $this->state(function (array $attributes) {
+        return $this->state(function (array $attributes) use ($product) {
             return [
-                'likeable_id' => Product::factory(),
                 'likeable_type' => Product::class,
+                'likeable_id' => $product ? $product->id : Product::factory(),
             ];
         });
     }
-
+    
     /**
      * Indicate that the like is for a blog post.
      */
-    public function blogPost(): static
+    public function forBlogPost(BlogPost $blogPost = null): static
     {
-        return $this->state(function (array $attributes) {
+        return $this->state(function (array $attributes) use ($blogPost) {
             return [
-                'likeable_id' => BlogPost::factory(),
                 'likeable_type' => BlogPost::class,
+                'likeable_id' => $blogPost ? $blogPost->id : BlogPost::factory(),
             ];
         });
     }

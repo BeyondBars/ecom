@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -20,11 +22,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'phone',
-        'address',
-        'avatar',
-        'bio',
-        'status',
     ];
 
     /**
@@ -50,7 +47,7 @@ class User extends Authenticatable
     /**
      * Get the roles that belong to the user.
      */
-    public function roles()
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class);
     }
@@ -58,7 +55,7 @@ class User extends Authenticatable
     /**
      * Get the orders for the user.
      */
-    public function orders()
+    public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
     }
@@ -66,31 +63,23 @@ class User extends Authenticatable
     /**
      * Get the blog posts for the user.
      */
-    public function blogPosts()
+    public function blogPosts(): HasMany
     {
-        return $this->hasMany(BlogPost::class, 'author_id');
+        return $this->hasMany(BlogPost::class);
     }
 
     /**
      * Get the comments for the user.
      */
-    public function comments()
+    public function comments(): HasMany
     {
-        return $this->hasMany(Comment::class, 'author_id');
-    }
-
-    /**
-     * Get the invoices for the user.
-     */
-    public function invoices()
-    {
-        return $this->hasMany(Invoice::class, 'customer_id');
+        return $this->hasMany(Comment::class);
     }
 
     /**
      * Get the wishlists for the user.
      */
-    public function wishlists()
+    public function wishlists(): HasMany
     {
         return $this->hasMany(Wishlist::class);
     }
@@ -98,42 +87,50 @@ class User extends Authenticatable
     /**
      * Get the likes for the user.
      */
-    public function likes()
+    public function likes(): HasMany
     {
         return $this->hasMany(Like::class);
     }
 
     /**
+     * Get the notifications for the user.
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    /**
      * Check if the user has a specific role.
      */
-    public function hasRole($role)
+    public function hasRole(string $role): bool
     {
-        if (is_string($role)) {
-            return $this->roles->contains('name', $role);
-        }
-
-        return $role->intersect($this->roles)->count() > 0;
+        return $this->roles()->where('name', $role)->exists();
     }
 
     /**
-     * Check if the user has a specific permission.
+     * Check if the user has any of the given roles.
      */
-    public function hasPermission($permission)
+    public function hasAnyRole(array $roles): bool
     {
-        foreach ($this->roles as $role) {
-            if ($role->permissions->contains('name', $permission)) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->roles()->whereIn('name', $roles)->exists();
     }
 
     /**
-     * Scope a query to only include active users.
+     * Check if the user has all of the given roles.
      */
-    public function scopeActive($query)
+    public function hasAllRoles(array $roles): bool
     {
-        return $query->where('status', 'active');
+        return $this->roles()->whereIn('name', $roles)->count() === count($roles);
+    }
+
+    /**
+     * Check if the user has a specific permission through their roles.
+     */
+    public function hasPermission(string $permission): bool
+    {
+        return $this->roles()->whereHas('permissions', function ($query) use ($permission) {
+            $query->where('name', $permission);
+        })->exists();
     }
 }
