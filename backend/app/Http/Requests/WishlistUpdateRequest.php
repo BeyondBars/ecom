@@ -11,20 +11,20 @@ class WishlistUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('update-wishlists');
+        return true;
     }
 
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'string', 'max:255'],
-            'is_public' => ['nullable', 'boolean'],
-            'description' => ['nullable', 'string'],
+            'name' => 'sometimes|string|max:255',
+            'description' => 'nullable|string',
+            'is_public' => 'boolean',
         ];
     }
 }

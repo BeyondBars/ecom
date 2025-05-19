@@ -3,175 +3,208 @@
 namespace Tests\Feature;
 
 use App\Models\Product;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\Wishlist;
+use App\Models\WishlistItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class WishlistApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, WithFaker;
 
     /**
-     * Test getting all wishlists.
+     * Setup the test environment.
      */
-    public function test_can_get_all_wishlists()
+    protected function setUp(): void
     {
-        $user = User::factory()->create();
-        Wishlist::factory()->count(3)->create(['user_id' => $user->id]);
+        parent::setUp();
         
-        Sanctum::actingAs($user);
+        // Create admin role with all permissions
+        $this->adminRole = Role::factory()->create(['name' => 'Admin']);
+        
+        // Create admin user
+        $this->admin = User::factory()->create(['role_id' => $this->adminRole->id]);
+        
+        // Create regular user
+        $this->user = User::factory()->create();
+        
+        // Create products
+        $this->products = Product::factory()->count(5)->create();
+    }
+
+    /**
+     * Test admin can view all wishlists.
+     */
+    public function test_admin_can_view_all_wishlists(): void
+    {
+        Sanctum::actingAs($this->admin);
+        
+        // Create wishlists for different users
+        Wishlist::factory()->count(3)->create();
         
         $response = $this->getJson('/api/wishlists');
         
         $response->assertStatus(200)
-            ->assertJsonCount(3, 'data');
-    }
-
-    /**
-     * Test creating a wishlist.
-     */
-    public function test_can_create_wishlist()
-    {
-        $user = User::factory()->create();
-        Sanctum::actingAs($user);
+            ->assertJsonStructure([
+                'data',
+                'current_page',
+                'total',
+            ]);
         
-        $response = $this->postJson('/api/wishlists', [
-            'name' => 'Test Wishlist',
-            'is_public' => true,
+        $this->assertEquals(3, $response->json('total'));
+    }
+    
+    /**
+     * Test user can create wishlist.
+     */
+    public function test_user_can_create_wishlist(): void
+    {
+        Sanctum::actingAs($this->user);
+        
+        $wishlistData = [
+            'user_id' => $this->user->id,
+            'name' => 'My Test Wishlist',
             'description' => 'This is a test wishlist',
-        ]);
+            'is_public' => false,
+            'product_ids' => [$this->products[0]->id, $this->products[1]->id],
+        ];
+        
+        $response = $this->post  => [$this->products[0]->id, $this->products[1]->id],
+        ];
+        
+        $response = $this->postJson('/api/wishlists', $wishlistData);
         
         $response->assertStatus(201)
-            ->assertJson([
-                'name' => 'Test Wishlist',
-                'is_public' => true,
-                'description' => 'This is a test wishlist',
+            ->assertJsonStructure([
+                'id',
+                'user_id',
+                'name',
+                'description',
+                'is_public',
+                'created_at',
+                'updated_at',
             ]);
-            
+        
         $this->assertDatabaseHas('wishlists', [
-            'name' => 'Test Wishlist',
-            'user_id' => $user->id,
-        ]);
-    }
-
-    /**
-     * Test getting a specific wishlist.
-     */
-    public function test_can_get_specific_wishlist()
-    {
-        $user = User::factory()->create();
-        $wishlist = Wishlist::factory()->create(['user_id' => $user->id]);
-        
-        Sanctum::actingAs($user);
-        
-        $response = $this->getJson("/api/wishlists/{$wishlist->id}");
-        
-        $response->assertStatus(200)
-            ->assertJson([
-                'id' => $wishlist->id,
-                'name' => $wishlist->name,
-            ]);
-    }
-
-    /**
-     * Test updating a wishlist.
-     */
-    public function test_can_update_wishlist()
-    {
-        $user = User::factory()->create();
-        $wishlist = Wishlist::factory()->create(['user_id' => $user->id]);
-        
-        Sanctum::actingAs($user);
-        
-        $response = $this->putJson("/api/wishlists/{$wishlist->id}", [
-            'name' => 'Updated Wishlist',
+            'user_id' => $this->user->id,
+            'name' => 'My Test Wishlist',
+            'description' => 'This is a test wishlist',
             'is_public' => false,
         ]);
         
-        $response->assertStatus(200)
-            ->assertJson([
-                'id' => $wishlist->id,
-                'name' => 'Updated Wishlist',
-                'is_public' => false,
+        // Check if products were added to wishlist
+        $wishlistId = $response->json('id');
+        $this->assertDatabaseHas('wishlist_items', [
+            'wishlist_id' => $wishlistId,
+            'product_id' => $this->products[0]->id,
+        ]);
+        $this->assertDatabaseHas('wishlist_items', [
+            'wishlist_id' => $wishlistId,
+            'product_id' => $this->products[1]->id,
+        ]);
+    }
+    
+    /**
+     * Test user can add product to wishlist.
+     */
+    public function test_user_can_add_product_to_wishlist(): void
+    {
+        Sanctum::actingAs($this->user);
+        
+        $wishlist = Wishlist::factory()->create(['user_id' => $this->user->id]);
+        
+        $productData = [
+            'product_id' => $this->products[0]->id,
+            'notes' => 'I want this for my birthday',
+            'priority' => 8,
+        ];
+        
+        $response = $this->postJson("/api/wishlists/{$wishlist->id}/products", $productData);
+        
+        $response->assertStatus(201)
+            ->assertJsonStructure([
+                'id',
+                'wishlist_id',
+                'product_id',
+                'notes',
+                'priority',
+                'created_at',
+                'updated_at',
             ]);
-            
-        $this->assertDatabaseHas('wishlists', [
-            'id' => $wishlist->id,
-            'name' => 'Updated Wishlist',
-            'is_public' => false,
-        ]);
-    }
-
-    /**
-     * Test deleting a wishlist.
-     */
-    public function test_can_delete_wishlist()
-    {
-        $user = User::factory()->create();
-        $wishlist = Wishlist::factory()->create(['user_id' => $user->id]);
-        
-        Sanctum::actingAs($user);
-        
-        $response = $this->deleteJson("/api/wishlists/{$wishlist->id}");
-        
-        $response->assertStatus(204);
-        
-        $this->assertDatabaseMissing('wishlists', [
-            'id' => $wishlist->id,
-        ]);
-    }
-
-    /**
-     * Test adding a product to a wishlist.
-     */
-    public function test_can_add_product_to_wishlist()
-    {
-        $user = User::factory()->create();
-        $wishlist = Wishlist::factory()->create(['user_id' => $user->id]);
-        $product = Product::factory()->create();
-        
-        Sanctum::actingAs($user);
-        
-        $response = $this->postJson("/api/wishlists/{$wishlist->id}/products", [
-            'product_id' => $product->id,
-            'notes' => 'Test notes',
-        ]);
-        
-        $response->assertStatus(200);
         
         $this->assertDatabaseHas('wishlist_items', [
             'wishlist_id' => $wishlist->id,
-            'product_id' => $product->id,
-            'notes' => 'Test notes',
+            'product_id' => $this->products[0]->id,
+            'notes' => 'I want this for my birthday',
+            'priority' => 8,
         ]);
     }
-
+    
     /**
-     * Test removing a product from a wishlist.
+     * Test user can remove product from wishlist.
      */
-    public function test_can_remove_product_from_wishlist()
+    public function test_user_can_remove_product_from_wishlist(): void
     {
-        $user = User::factory()->create();
-        $wishlist = Wishlist::factory()->create(['user_id' => $user->id]);
-        $product = Product::factory()->create();
+        Sanctum::actingAs($this->user);
         
-        $wishlist->products()->attach($product->id, [
-            'notes' => 'Test notes',
+        $wishlist = Wishlist::factory()->create(['user_id' => $this->user->id]);
+        $wishlistItem = WishlistItem::create([
+            'wishlist_id' => $wishlist->id,
+            'product_id' => $this->products[0]->id,
         ]);
         
-        Sanctum::actingAs($user);
+        $response = $this->deleteJson("/api/wishlists/{$wishlist->id}/products/{$this->products[0]->id}");
         
-        $response = $this->deleteJson("/api/wishlists/{$wishlist->id}/products", [
-            'product_id' => $product->id,
-        ]);
-        
-        $response->assertStatus(200);
+        $response->assertStatus(204);
         
         $this->assertDatabaseMissing('wishlist_items', [
             'wishlist_id' => $wishlist->id,
-            'product_id' => $product->id,
+            'product_id' => $this->products[0]->id,
+        ]);
+    }
+    
+    /**
+     * Test user can update product in wishlist.
+     */
+    public function test_user_can_update_product_in_wishlist(): void
+    {
+        Sanctum::actingAs($this->user);
+        
+        $wishlist = Wishlist::factory()->create(['user_id' => $this->user->id]);
+        $wishlistItem = WishlistItem::create([
+            'wishlist_id' => $wishlist->id,
+            'product_id' => $this->products[0]->id,
+            'notes' => 'Original note',
+            'priority' => 3,
+        ]);
+        
+        $updateData = [
+            'notes' => 'Updated note',
+            'priority' => 9,
+        ];
+        
+        $response = $this->putJson("/api/wishlists/{$wishlist->id}/products/{$this->products[0]->id}", $updateData);
+        
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'id',
+                'wishlist_id',
+                'product_id',
+                'notes',
+                'priority',
+                'created_at',
+                'updated_at',
+            ]);
+        
+        $this->assertDatabaseHas('wishlist_items', [
+            'wishlist_id' => $wishlist->id,
+            'product_id' => $this->products[0]->id,
+            'notes' => 'Updated note',
+            'priority' => 9,
         ]);
     }
 }

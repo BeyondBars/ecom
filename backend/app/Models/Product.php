@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Product extends Model
 {
@@ -20,15 +24,12 @@ class Product extends Model
         'description',
         'price',
         'sale_price',
-        'cost',
-        'quantity',
+        'stock',
         'category_id',
         'brand_id',
-        'sku',
-        'featured',
+        'image',
         'status',
-        'images',
-        'specifications',
+        'featured',
     ];
 
     /**
@@ -39,16 +40,15 @@ class Product extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'sale_price' => 'decimal:2',
-        'cost' => 'decimal:2',
+        'stock' => 'integer',
+        'status' => 'boolean',
         'featured' => 'boolean',
-        'images' => 'array',
-        'specifications' => 'array',
     ];
 
     /**
      * Get the category that owns the product.
      */
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
@@ -56,7 +56,7 @@ class Product extends Model
     /**
      * Get the brand that owns the product.
      */
-    public function brand()
+    public function brand(): BelongsTo
     {
         return $this->belongsTo(Brand::class);
     }
@@ -64,66 +64,42 @@ class Product extends Model
     /**
      * Get the order items for the product.
      */
-    public function orderItems()
+    public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
 
     /**
-     * Get the comments for the product.
+     * Get the invoice items for the product.
      */
-    public function comments()
+    public function invoiceItems(): HasMany
     {
-        return $this->morphMany(Comment::class, 'commentable');
-    }
-
-    /**
-     * Get the likes for the product.
-     */
-    public function likes()
-    {
-        return $this->morphMany(Like::class, 'likeable');
+        return $this->hasMany(InvoiceItem::class);
     }
 
     /**
      * Get the wishlists that contain this product.
      */
-    public function wishlists()
+    public function wishlists(): BelongsToMany
     {
         return $this->belongsToMany(Wishlist::class, 'wishlist_items')
-            ->withPivot('notes')
+            ->withPivot('notes', 'priority')
             ->withTimestamps();
     }
 
     /**
-     * Scope a query to only include active products.
+     * Get the likes for the product.
      */
-    public function scopeActive($query)
+    public function likes(): MorphMany
     {
-        return $query->where('status', 'active');
+        return $this->morphMany(Like::class, 'likeable');
     }
 
     /**
-     * Scope a query to only include featured products.
+     * Get the users who liked this product.
      */
-    public function scopeFeatured($query)
+    public function likedBy(): BelongsToMany
     {
-        return $query->where('featured', true);
-    }
-
-    /**
-     * Scope a query to only include products on sale.
-     */
-    public function scopeOnSale($query)
-    {
-        return $query->whereNotNull('sale_price');
-    }
-
-    /**
-     * Scope a query to only include products in stock.
-     */
-    public function scopeInStock($query)
-    {
-        return $query->where('quantity', '>', 0);
+        return $this->morphToMany(User::class, 'likeable', 'likes');
     }
 }

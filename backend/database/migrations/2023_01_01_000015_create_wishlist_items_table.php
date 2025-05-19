@@ -16,9 +16,10 @@ return new class extends Migration
             $table->foreignId('wishlist_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->text('notes')->nullable();
+            $table->integer('priority')->default(0);
             $table->timestamps();
             
-            // Prevent duplicate products in the same wishlist
+            // Ensure a product can only be in a wishlist once
             $table->unique(['wishlist_id', 'product_id']);
         });
     }

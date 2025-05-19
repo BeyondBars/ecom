@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
-use App\Models\Product;
 use App\Models\BlogPost;
+use App\Models\Product;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,49 +19,48 @@ class LikeFactory extends Factory
      */
     public function definition(): array
     {
+        // Randomly choose between Product and BlogPost for the likeable type
+        $likeableType = $this->faker->randomElement([
+            Product::class,
+            BlogPost::class,
+        ]);
+
+        // Get a random ID based on the chosen type
+        $likeableId = match ($likeableType) {
+            Product::class => Product::factory(),
+            BlogPost::class => BlogPost::factory(),
+            default => null,
+        };
+
         return [
             'user_id' => User::factory(),
-            'likeable_id' => Product::factory(),
-            'likeable_type' => Product::class,
+            'likeable_type' => $likeableType,
+            'likeable_id' => $likeableId,
         ];
     }
 
     /**
-     * Configure the model factory.
-     *
-     * @return $this
+     * Configure the model factory to create a like for a product.
      */
-    public function configure()
+    public function forProduct(): Factory
     {
-        return $this->afterMaking(function (Like $like) {
-            //
-        })->afterCreating(function (Like $like) {
-            //
-        });
-    }
-
-    /**
-     * Indicate that the like is for a product.
-     */
-    public function product(): static
-    {
-        return $this->state(function (array $attributes) {
+        return $this->state(function () {
             return [
-                'likeable_id' => Product::factory(),
                 'likeable_type' => Product::class,
+                'likeable_id' => Product::factory(),
             ];
         });
     }
 
     /**
-     * Indicate that the like is for a blog post.
+     * Configure the model factory to create a like for a blog post.
      */
-    public function blogPost(): static
+    public function forBlogPost(): Factory
     {
-        return $this->state(function (array $attributes) {
+        return $this->state(function () {
             return [
-                'likeable_id' => BlogPost::factory(),
                 'likeable_type' => BlogPost::class,
+                'likeable_id' => BlogPost::factory(),
             ];
         });
     }

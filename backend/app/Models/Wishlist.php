@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Wishlist extends Model
 {
@@ -17,8 +19,8 @@ class Wishlist extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'is_public',
         'description',
+        'is_public',
     ];
 
     /**
@@ -33,7 +35,7 @@ class Wishlist extends Model
     /**
      * Get the user that owns the wishlist.
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -41,7 +43,7 @@ class Wishlist extends Model
     /**
      * Get the items in the wishlist.
      */
-    public function items()
+    public function items(): HasMany
     {
         return $this->hasMany(WishlistItem::class);
     }
@@ -52,15 +54,7 @@ class Wishlist extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class, 'wishlist_items')
-            ->withPivot('notes')
+            ->withPivot('notes', 'priority')
             ->withTimestamps();
-    }
-
-    /**
-     * Scope a query to only include public wishlists.
-     */
-    public function scopePublic($query)
-    {
-        return $query->where('is_public', true);
     }
 }

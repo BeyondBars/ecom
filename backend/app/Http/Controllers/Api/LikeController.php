@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\BlogPost;
 use App\Models\Like;
 use App\Models\Product;
-use App\Models\BlogPost;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class LikeController extends Controller
@@ -13,35 +14,23 @@ class LikeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Like::class);
 
         $query = Like::with(['user', 'likeable']);
 
-        // Filter by user
+        // Filter by user_id if provided
         if ($request->has('user_id')) {
-            $query->where('user_id', $request->input('user_id'));
+            $query->where('user_id', $request->user_id);
         }
 
-        // Filter by likeable type
+        // Filter by likeable_type if provided
         if ($request->has('likeable_type')) {
-            $query->where('likeable_type', $request->input('likeable_type'));
+            $query->where('likeable_type', $request->likeable_type);
         }
 
-        // Filter by likeable id
-        if ($request->has('likeable_id')) {
-            $query->where('likeable_id', $request->input('likeable_id'));
-        }
-
-        // Apply sorting
-        $sortField = $request->input('sort_field', 'created_at');
-        $sortDirection = $request->input('sort_direction', 'desc');
-        $query->orderBy($sortField, $sortDirection);
-
-        // Paginate results
-        $perPage = $request->input('per_page', 10);
-        $likes = $query->paginate($perPage);
+        $likes = $query->paginate($request->per_page ?? 15);
 
         return response()->json($likes);
     }
@@ -49,96 +38,102 @@ class LikeController extends Controller
     /**
      * Toggle like for a product.
      */
-    public function toggleProductLike(Request $request, Product $product)
+    public function toggleProductLike(Request $request, Product $product): JsonResponse
     {
         $this->authorize('like', $product);
 
-        $user = $request->user();
-        $like = Like::where('user_id', $user->id)
+        $userId = $request->user()->id;
+
+        $like = Like::where('user_id', $userId)
             ->where('likeable_id', $product->id)
-            ->where('likeable_type', get_class($product))
+            ->where('likeable_type', Product::class)
             ->first();
 
         if ($like) {
             $like->delete();
-            $liked = false;
+            return response()->json(['liked' => false]);
         } else {
             Like::create([
-                'user_id' => $user->id,
+                'user_id' => $userId,
                 'likeable_id' => $product->id,
-                'likeable_type' => get_class($product),
+                'likeable_type' => Product::class,
             ]);
-            $liked = true;
+            return response()->json(['liked' => true]);
         }
-
-        return response()->json([
-            'liked' => $liked,
-            'likes_count' => $product->likes()->count(),
-        ]);
     }
 
     /**
      * Toggle like for a blog post.
      */
-    public function toggleBlogPostLike(Request $request, BlogPost $blogPost)
+    public function toggleBlogPostLike(Request $request, BlogPost $blogPost): JsonResponse
     {
         $this->authorize('like', $blogPost);
 
-        $user = $request->user();
-        $like = Like::where('user_id', $user->id)
+        $userId = $request->user()->id;
+
+        $like = Like::where('user_id', $userId)
             ->where('likeable_id', $blogPost->id)
-            ->where('likeable_type', get_class($blogPost))
+            ->where('likeable_type', BlogPost::class)
             ->first();
 
         if ($like) {
             $like->delete();
-            $liked = false;
+            return response()->json(['liked' => false]);
         } else {
             Like::create([
-                'user_id' => $user->id,
+                'user_id' => $userId,
                 'likeable_id' => $blogPost->id,
-                'likeable_type' => get_class($blogPost),
+                'likeable_type' => BlogPost::class,
             ]);
-            $liked = true;
+            return response()->json(['liked' => true]);
         }
-
-        return response()->json([
-            'liked' => $liked,
-            'likes_count' => $blogPost->likes()->count(),
-        ]);
     }
 
     /**
-     * Check if user has liked a product.
+     * Get likes count for a product.
      */
-    public function checkProductLike(Request $request, Product $product)
+    public function getProductLikesCount(Product $product): JsonResponse
     {
-        $user = $request->user();
-        $liked = Like::where('user_id', $user->id)
+        $count = $product->likes()->count();
+        return response()->json(['count' => $count]);
+    }
+
+    /**
+     * Get likes count for a blog post.
+     */
+    public function getBlogPostLikesCount(BlogPost $blogPost): JsonResponse
+    {
+        $count = $blogPost->likes()->count();
+        return response()->json(['count' => $count]);
+    }
+
+    /**
+     * Check if a user has liked a product.
+     */
+    public function checkProductLike(Request $request, Product $product): JsonResponse
+    {
+        $userId = $request->user()->id;
+
+        $liked = Like::where('user_id', $userId)
             ->where('likeable_id', $product->id)
-            ->where('likeable_type', get_class($product))
+            ->where('likeable_type', Product::class)
             ->exists();
 
-        return response()->json([
-            'liked' => $liked,
-            'likes_count' => $product->likes()->count(),
-        ]);
+        return response()->json(['liked' => $liked]);
     }
 
     /**
-     * Check if user has liked a blog post.
+     * Check if a user has liked a blog post.
      */
-    public function checkBlogPostLike(Request $request, BlogPost $blogPost)
+    public function checkBlogPostLike(Request $request, BlogPost $blogPost): JsonResponse
     {
-        $user = $request->user();
-        $liked = Like::where('user_id', $user->id)
+        $userId = $request->user()->id;
+
+        $liked = Like::where('user_id', $userId)
             ->where('likeable_id', $blogPost->id)
-            ->where('likeable_type', get_class($blogPost))
+            ->where('likeable_type', BlogPost::class)
             ->exists();
 
-        return response()->json([
-            'liked' => $liked,
-            'likes_count' => $blogPost->likes()->count(),
-        ]);
+        return response()->json(['liked' => $liked]);
     }
 }
