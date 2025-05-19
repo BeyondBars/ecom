@@ -3,9 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -23,11 +20,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role_id',
-        'avatar',
         'phone',
         'address',
+        'avatar',
         'bio',
+        'status',
     ];
 
     /**
@@ -51,17 +48,17 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the role that owns the user.
+     * Get the roles that belong to the user.
      */
-    public function role(): BelongsTo
+    public function roles()
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsToMany(Role::class);
     }
 
     /**
      * Get the orders for the user.
      */
-    public function orders(): HasMany
+    public function orders()
     {
         return $this->hasMany(Order::class);
     }
@@ -69,31 +66,31 @@ class User extends Authenticatable
     /**
      * Get the blog posts for the user.
      */
-    public function blogPosts(): HasMany
+    public function blogPosts()
     {
-        return $this->hasMany(BlogPost::class);
+        return $this->hasMany(BlogPost::class, 'author_id');
     }
 
     /**
      * Get the comments for the user.
      */
-    public function comments(): HasMany
+    public function comments()
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Comment::class, 'author_id');
     }
 
     /**
      * Get the invoices for the user.
      */
-    public function invoices(): HasMany
+    public function invoices()
     {
-        return $this->hasMany(Invoice::class);
+        return $this->hasMany(Invoice::class, 'customer_id');
     }
 
     /**
      * Get the wishlists for the user.
      */
-    public function wishlists(): HasMany
+    public function wishlists()
     {
         return $this->hasMany(Wishlist::class);
     }
@@ -101,32 +98,42 @@ class User extends Authenticatable
     /**
      * Get the likes for the user.
      */
-    public function likes(): HasMany
+    public function likes()
     {
         return $this->hasMany(Like::class);
     }
 
     /**
-     * Get the products that the user has liked.
+     * Check if the user has a specific role.
      */
-    public function likedProducts(): BelongsToMany
+    public function hasRole($role)
     {
-        return $this->morphedByMany(Product::class, 'likeable', 'likes');
-    }
+        if (is_string($role)) {
+            return $this->roles->contains('name', $role);
+        }
 
-    /**
-     * Get the blog posts that the user has liked.
-     */
-    public function likedBlogPosts(): BelongsToMany
-    {
-        return $this->morphedByMany(BlogPost::class, 'likeable', 'likes');
+        return $role->intersect($this->roles)->count() > 0;
     }
 
     /**
      * Check if the user has a specific permission.
      */
-    public function hasPermission(string $permission): bool
+    public function hasPermission($permission)
     {
-        return $this->role->permissions->contains('name', $permission);
+        foreach ($this->roles as $role) {
+            if ($role->permissions->contains('name', $permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Scope a query to only include active users.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
     }
 }

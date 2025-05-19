@@ -2,338 +2,386 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import {
-  type ColumnDef,
-  type ColumnFiltersState,
-  type SortingState,
-  type VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table"
-import { ArrowUpDown, MoreHorizontal, Plus } from "lucide-react"
+import { Download, Filter, Plus, RefreshCw, Search, SlidersHorizontal, Trash2, Heart, Globe, Lock } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
+import { WishlistDialog } from "@/components/wishlists/wishlist-dialog"
+import { DeleteDialog } from "@/components/common/delete-dialog"
+import { useToast } from "@/components/ui/use-toast"
 import { DataTablePagination } from "@/components/common/data-table-pagination"
 import { DataTableViewOptions } from "@/components/common/data-table-view-options"
-import { Badge } from "@/components/ui/badge"
-import type { Wishlist } from "@/lib/data/wishlists"
-import { DeleteDialog } from "@/components/common/delete-dialog"
-import { toast } from "@/components/ui/use-toast"
-
-const data: Wishlist[] = [
-  {
-    id: 1,
-    name: "Summer Wishlist",
-    user: {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-    },
-    itemsCount: 5,
-    isPublic: true,
-    createdAt: "2023-04-15T10:00:00Z",
-  },
-  {
-    id: 2,
-    name: "Birthday Ideas",
-    user: {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-    },
-    itemsCount: 12,
-    isPublic: false,
-    createdAt: "2023-05-20T14:30:00Z",
-  },
-  {
-    id: 3,
-    name: "Tech Gadgets",
-    user: {
-      id: 3,
-      name: "Bob Johnson",
-      email: "bob@example.com",
-    },
-    itemsCount: 8,
-    isPublic: true,
-    createdAt: "2023-06-10T09:15:00Z",
-  },
-  {
-    id: 4,
-    name: "Home Decor",
-    user: {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-    },
-    itemsCount: 15,
-    isPublic: false,
-    createdAt: "2023-07-05T16:45:00Z",
-  },
-  {
-    id: 5,
-    name: "Gift Ideas",
-    user: {
-      id: 4,
-      name: "Alice Williams",
-      email: "alice@example.com",
-    },
-    itemsCount: 7,
-    isPublic: true,
-    createdAt: "2023-08-12T11:20:00Z",
-  },
-]
+import { wishlists } from "@/lib/data/wishlists"
 
 export default function WishlistsPage() {
   const router = useRouter()
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = useState({})
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [selectedWishlist, setSelectedWishlist] = useState<Wishlist | null>(null)
-
-  const columns: ColumnDef<Wishlist>[] = [
-    {
-      accessorKey: "id",
-      header: "ID",
-      cell: ({ row }) => <div className="w-[80px]">{row.getValue("id")}</div>,
-    },
-    {
-      accessorKey: "name",
-      header: ({ column }) => {
-        return (
-          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Name
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
-      cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
-    },
-    {
-      accessorKey: "user",
-      header: "User",
-      cell: ({ row }) => {
-        const user = row.getValue("user") as { name: string; email: string }
-        return (
-          <div className="flex flex-col">
-            <span className="font-medium">{user.name}</span>
-            <span className="text-xs text-muted-foreground">{user.email}</span>
-          </div>
-        )
-      },
-    },
-    {
-      accessorKey: "itemsCount",
-      header: ({ column }) => {
-        return (
-          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Items
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
-      cell: ({ row }) => <div className="text-center">{row.getValue("itemsCount")}</div>,
-    },
-    {
-      accessorKey: "isPublic",
-      header: "Visibility",
-      cell: ({ row }) => {
-        const isPublic = row.getValue("isPublic") as boolean
-        return <Badge variant={isPublic ? "default" : "secondary"}>{isPublic ? "Public" : "Private"}</Badge>
-      },
-    },
-    {
-      accessorKey: "createdAt",
-      header: ({ column }) => {
-        return (
-          <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Created At
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
-      cell: ({ row }) => {
-        const date = new Date(row.getValue("createdAt"))
-        return <div>{date.toLocaleDateString()}</div>
-      },
-    },
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }) => {
-        const wishlist = row.original
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => router.push(`/wishlists/${wishlist.id}`)}>View Details</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => {
-                  setSelectedWishlist(wishlist)
-                  setDeleteDialogOpen(true)
-                }}
-                className="text-destructive focus:text-destructive"
-              >
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )
-      },
-    },
-  ]
-
-  const table = useReactTable({
-    data,
-    columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-    },
+  const { toast } = useToast()
+  const [selectedWishlists, setSelectedWishlists] = useState<string[]>([])
+  const [showAddWishlistDialog, setShowAddWishlistDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [editingWishlist, setEditingWishlist] = useState<any>(null)
+  const [wishlistToDelete, setWishlistToDelete] = useState<string | null>(null)
+  const [filters, setFilters] = useState({
+    search: "",
+    user: "",
+    visibility: "",
+    sort: "created_at",
   })
 
-  const handleDelete = async () => {
-    if (!selectedWishlist) return
-
-    try {
-      // API call would go here
-      // await deleteWishlist(selectedWishlist.id)
-
-      toast({
-        title: "Wishlist deleted",
-        description: `Wishlist "${selectedWishlist.name}" has been deleted.`,
-      })
-
-      // Refresh data
-      router.refresh()
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete wishlist. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setDeleteDialogOpen(false)
-      setSelectedWishlist(null)
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedWishlists(wishlists.map((wishlist) => wishlist.id))
+    } else {
+      setSelectedWishlists([])
     }
   }
 
+  const handleSelectWishlist = (wishlistId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedWishlists([...selectedWishlists, wishlistId])
+    } else {
+      setSelectedWishlists(selectedWishlists.filter((id) => id !== wishlistId))
+    }
+  }
+
+  const handleEditWishlist = (wishlist: any) => {
+    setEditingWishlist(wishlist)
+    setShowAddWishlistDialog(true)
+  }
+
+  const handleDeleteWishlist = (wishlistId: string) => {
+    setWishlistToDelete(wishlistId)
+    setShowDeleteDialog(true)
+  }
+
+  const confirmDelete = () => {
+    // Delete wishlist logic here
+    toast({
+      title: "Wishlist deleted",
+      description: "The wishlist has been deleted successfully.",
+    })
+    setShowDeleteDialog(false)
+    setWishlistToDelete(null)
+  }
+
+  const handleSaveWishlist = (wishlist: any) => {
+    // Save wishlist logic here
+    toast({
+      title: "Wishlist saved",
+      description: "The wishlist has been saved successfully.",
+    })
+    setShowAddWishlistDialog(false)
+    setEditingWishlist(null)
+  }
+
+  const handleBulkAction = (action: string) => {
+    if (action === "delete") {
+      // Delete selected wishlists logic here
+      toast({
+        title: "Wishlists deleted",
+        description: `${selectedWishlists.length} wishlists have been deleted.`,
+      })
+      setSelectedWishlists([])
+    } else if (action === "make-public") {
+      // Make selected wishlists public logic here
+      toast({
+        title: "Wishlists updated",
+        description: `${selectedWishlists.length} wishlists have been made public.`,
+      })
+      setSelectedWishlists([])
+    } else if (action === "make-private") {
+      // Make selected wishlists private logic here
+      toast({
+        title: "Wishlists updated",
+        description: `${selectedWishlists.length} wishlists have been made private.`,
+      })
+      setSelectedWishlists([])
+    }
+  }
+
+  const resetFilters = () => {
+    setFilters({
+      search: "",
+      user: "",
+      visibility: "",
+      sort: "created_at",
+    })
+  }
+
   return (
-    <>
-      <div className="h-full flex-1 flex-col space-y-8 p-8 md:flex">
-        <div className="flex items-center justify-between space-y-2">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">Wishlists</h2>
-            <p className="text-muted-foreground">Manage customer wishlists and their items</p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Wishlist
-            </Button>
-          </div>
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold tracking-tight">Wishlists</h2>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 gap-1"
+            onClick={() => {
+              // Export wishlists logic here
+              toast({
+                title: "Export started",
+                description: "Your wishlists are being exported.",
+              })
+            }}
+          >
+            <Download className="h-4 w-4" />
+            <span className="hidden sm:inline">Export</span>
+          </Button>
+          <Button
+            size="sm"
+            className="h-9 gap-1"
+            onClick={() => {
+              setEditingWishlist(null)
+              setShowAddWishlistDialog(true)
+            }}
+          >
+            <Plus className="h-4 w-4" />
+            <span>Add Wishlist</span>
+          </Button>
         </div>
-        <Card>
-          <CardHeader>
-            <CardTitle>All Wishlists</CardTitle>
-            <CardDescription>View and manage all customer wishlists in your store.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-4 flex items-center gap-4">
-              <Input
-                placeholder="Filter wishlists..."
-                value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-                onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}
-                className="max-w-sm"
-              />
-              <DataTableViewOptions table={table} />
-            </div>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => {
-                        return (
-                          <TableHead key={header.id}>
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(header.column.columnDef.header, header.getContext())}
-                          </TableHead>
-                        )
-                      })}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={columns.length} className="h-24 text-center">
-                        No wishlists found.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-            <div className="mt-4">
-              <DataTablePagination table={table} />
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
-      <DeleteDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        onDelete={handleDelete}
-        title="Delete Wishlist"
-        description={`Are you sure you want to delete the wishlist "${selectedWishlist?.name}"? This action cannot be undone.`}
+      <Card>
+        <CardHeader className="p-4">
+          <CardTitle>Filters</CardTitle>
+          <CardDescription>Narrow down your wishlist list with filters</CardDescription>
+        </CardHeader>
+        <CardContent className="p-4 pt-0">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+            <div>
+              <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Search
+              </label>
+              <div className="relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-gray-400" />
+                </div>
+                <Input
+                  type="text"
+                  id="search"
+                  className="pl-10"
+                  placeholder="Search wishlists..."
+                  value={filters.search}
+                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="user" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                User
+              </label>
+              <Select value={filters.user} onValueChange={(value) => setFilters({ ...filters, user: value })}>
+                <SelectTrigger id="user">
+                  <SelectValue placeholder="All Users" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Users</SelectItem>
+                  <SelectItem value="1">John Doe</SelectItem>
+                  <SelectItem value="2">Jane Smith</SelectItem>
+                  <SelectItem value="3">Bob Johnson</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label htmlFor="visibility" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Visibility
+              </label>
+              <Select
+                value={filters.visibility}
+                onValueChange={(value) => setFilters({ ...filters, visibility: value })}
+              >
+                <SelectTrigger id="visibility">
+                  <SelectValue placeholder="All Visibilities" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Visibilities</SelectItem>
+                  <SelectItem value="public">Public</SelectItem>
+                  <SelectItem value="private">Private</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label htmlFor="sort" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Sort By
+              </label>
+              <Select value={filters.sort} onValueChange={(value) => setFilters({ ...filters, sort: value })}>
+                <SelectTrigger id="sort">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name">Name</SelectItem>
+                  <SelectItem value="created_at">Newest</SelectItem>
+                  <SelectItem value="items_count">Most Items</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="mt-4 flex justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={resetFilters} className="h-9 gap-1">
+              <RefreshCw className="h-4 w-4" />
+              Reset
+            </Button>
+            <Button size="sm" className="h-9 gap-1">
+              <Filter className="h-4 w-4" />
+              Apply Filters
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="p-4">
+          <div className="flex items-center justify-between">
+            <CardTitle>Wishlist List</CardTitle>
+            <div className="flex items-center gap-2">
+              <Select
+                value={selectedWishlists.length > 0 ? "bulk" : ""}
+                onValueChange={(value) => {
+                  if (value && value !== "bulk") {
+                    handleBulkAction(value)
+                  }
+                }}
+                disabled={selectedWishlists.length === 0}
+              >
+                <SelectTrigger className="h-9 w-[160px]" disabled={selectedWishlists.length === 0}>
+                  <SelectValue placeholder="Bulk Actions" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bulk" disabled>
+                    Bulk Actions
+                  </SelectItem>
+                  <SelectItem value="make-public">Make Public</SelectItem>
+                  <SelectItem value="make-private">Make Private</SelectItem>
+                  <SelectItem value="delete">Delete</SelectItem>
+                </SelectContent>
+              </Select>
+              <DataTableViewOptions />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">
+                    <Checkbox
+                      checked={selectedWishlists.length > 0 && selectedWishlists.length === wishlists.length}
+                      onCheckedChange={handleSelectAll}
+                      aria-label="Select all wishlists"
+                    />
+                  </TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>User</TableHead>
+                  <TableHead>Items</TableHead>
+                  <TableHead>Visibility</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {wishlists.map((wishlist) => (
+                  <TableRow key={wishlist.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedWishlists.includes(wishlist.id)}
+                        onCheckedChange={(checked) => handleSelectWishlist(wishlist.id, checked as boolean)}
+                        aria-label={`Select ${wishlist.name}`}
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center">
+                        <Heart className="h-4 w-4 mr-2 text-rose-500" />
+                        <span>{wishlist.name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{wishlist.user.name}</TableCell>
+                    <TableCell>{wishlist.items.length}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={
+                          wishlist.is_public
+                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                            : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                        }
+                      >
+                        {wishlist.is_public ? (
+                          <div className="flex items-center">
+                            <Globe className="h-3 w-3 mr-1" />
+                            Public
+                          </div>
+                        ) : (
+                          <div className="flex items-center">
+                            <Lock className="h-3 w-3 mr-1" />
+                            Private
+                          </div>
+                        )}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{new Date(wishlist.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => handleEditWishlist(wishlist)}>
+                          <SlidersHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900"
+                          onClick={() => handleDeleteWishlist(wishlist.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="p-4">
+            <DataTablePagination
+              pageCount={10}
+              currentPage={1}
+              perPage={10}
+              onPageChange={(page) => {
+                console.log("Page changed to:", page)
+              }}
+              onPerPageChange={(perPage) => {
+                console.log("Per page changed to:", perPage)
+              }}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <WishlistDialog
+        open={showAddWishlistDialog}
+        onOpenChange={setShowAddWishlistDialog}
+        wishlist={editingWishlist}
+        onSave={handleSaveWishlist}
       />
-    </>
+
+      <DeleteDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        title="Delete Wishlist"
+        description="Are you sure you want to delete this wishlist? This action cannot be undone."
+        onConfirm={confirmDelete}
+      />
+    </div>
   )
 }

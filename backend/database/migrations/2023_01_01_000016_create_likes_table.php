@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('likes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->morphs('likeable'); // This allows likes on different models (products, blog posts, etc.)
+            $table->morphs('likeable');
             $table->timestamps();
             
-            // Ensure a user can only like an item once
+            // Prevent duplicate likes
             $table->unique(['user_id', 'likeable_id', 'likeable_type']);
         });
     }

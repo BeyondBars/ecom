@@ -4,16 +4,18 @@ namespace App\Policies;
 
 use App\Models\Like;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class LikePolicy
 {
+    use HandlesAuthorization;
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission('view_likes');
+        return $user->hasPermission('view-likes');
     }
 
     /**
@@ -21,13 +23,7 @@ class LikePolicy
      */
     public function view(User $user, Like $like): bool
     {
-        // Admin can view any like
-        if ($user->hasPermission('view_likes')) {
-            return true;
-        }
-
-        // Users can view their own likes
-        return $user->id === $like->user_id;
+        return $user->hasPermission('view-likes');
     }
 
     /**
@@ -35,8 +31,7 @@ class LikePolicy
      */
     public function create(User $user): bool
     {
-        // All authenticated users can create likes
-        return true;
+        return $user->hasPermission('create-likes');
     }
 
     /**
@@ -44,12 +39,7 @@ class LikePolicy
      */
     public function delete(User $user, Like $like): bool
     {
-        // Admin can delete any like
-        if ($user->hasPermission('delete_likes')) {
-            return true;
-        }
-
-        // Users can delete their own likes
-        return $user->id === $like->user_id;
+        return $user->hasPermission('delete-likes') && 
+               ($user->id === $like->user_id || $user->hasRole('Admin'));
     }
 }

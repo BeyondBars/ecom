@@ -2,18 +2,20 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Wishlist;
-use Illuminate\Auth\Access\Response;
+use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class WishlistPolicy
 {
+    use HandlesAuthorization;
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission('view_wishlists');
+        return $user->hasPermission('view-wishlists');
     }
 
     /**
@@ -21,18 +23,8 @@ class WishlistPolicy
      */
     public function view(User $user, Wishlist $wishlist): bool
     {
-        // Admin can view any wishlist
-        if ($user->hasPermission('view_wishlists')) {
-            return true;
-        }
-
-        // Users can view their own wishlists
-        if ($user->id === $wishlist->user_id) {
-            return true;
-        }
-
-        // Users can view public wishlists
-        return $wishlist->is_public;
+        return $user->hasPermission('view-wishlists') && 
+               ($user->id === $wishlist->user_id || $wishlist->is_public || $user->hasRole('Admin'));
     }
 
     /**
@@ -40,7 +32,7 @@ class WishlistPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermission('create_wishlists');
+        return $user->hasPermission('create-wishlists');
     }
 
     /**
@@ -48,13 +40,8 @@ class WishlistPolicy
      */
     public function update(User $user, Wishlist $wishlist): bool
     {
-        // Admin can update any wishlist
-        if ($user->hasPermission('update_wishlists')) {
-            return true;
-        }
-
-        // Users can update their own wishlists
-        return $user->id === $wishlist->user_id;
+        return $user->hasPermission('update-wishlists') && 
+               ($user->id === $wishlist->user_id || $user->hasRole('Admin'));
     }
 
     /**
@@ -62,12 +49,7 @@ class WishlistPolicy
      */
     public function delete(User $user, Wishlist $wishlist): bool
     {
-        // Admin can delete any wishlist
-        if ($user->hasPermission('delete_wishlists')) {
-            return true;
-        }
-
-        // Users can delete their own wishlists
-        return $user->id === $wishlist->user_id;
+        return $user->hasPermission('delete-wishlists') && 
+               ($user->id === $wishlist->user_id || $user->hasRole('Admin'));
     }
 }

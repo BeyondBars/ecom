@@ -4,16 +4,18 @@ namespace App\Policies;
 
 use App\Models\BlogPost;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class BlogPostPolicy
 {
+    use HandlesAuthorization;
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission('view_blog_posts');
+        return $user->hasPermission('view-blog-posts');
     }
 
     /**
@@ -21,7 +23,7 @@ class BlogPostPolicy
      */
     public function view(User $user, BlogPost $blogPost): bool
     {
-        return $user->hasPermission('view_blog_posts');
+        return $user->hasPermission('view-blog-posts');
     }
 
     /**
@@ -29,7 +31,7 @@ class BlogPostPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermission('create_blog_posts');
+        return $user->hasPermission('create-blog-posts');
     }
 
     /**
@@ -37,13 +39,8 @@ class BlogPostPolicy
      */
     public function update(User $user, BlogPost $blogPost): bool
     {
-        // Admin can update any blog post
-        if ($user->hasPermission('update_blog_posts')) {
-            return true;
-        }
-
-        // Authors can update their own blog posts
-        return $user->id === $blogPost->user_id;
+        return $user->hasPermission('update-blog-posts') && 
+               ($user->id === $blogPost->author_id || $user->hasRole('Admin'));
     }
 
     /**
@@ -51,21 +48,15 @@ class BlogPostPolicy
      */
     public function delete(User $user, BlogPost $blogPost): bool
     {
-        // Admin can delete any blog post
-        if ($user->hasPermission('delete_blog_posts')) {
-            return true;
-        }
-
-        // Authors can delete their own blog posts
-        return $user->id === $blogPost->user_id;
+        return $user->hasPermission('delete-blog-posts') && 
+               ($user->id === $blogPost->author_id || $user->hasRole('Admin'));
     }
 
     /**
-     * Determine whether the user can like the blog post.
+     * Determine whether the user can like the model.
      */
     public function like(User $user, BlogPost $blogPost): bool
     {
-        // All authenticated users can like blog posts
-        return true;
+        return $user->hasPermission('like-blog-posts');
     }
 }

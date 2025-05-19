@@ -16,30 +16,37 @@ class LikeSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get all users, products, and blog posts
+        // Get all users
         $users = User::all();
+        
+        // Get all products
         $products = Product::all();
+        
+        // Get all blog posts
         $blogPosts = BlogPost::all();
-
-        // Each user likes some products
-        foreach ($users as $user) {
-            // User likes 0-10 random products
-            $likedProductsCount = rand(0, 10);
-            $randomProducts = $products->random(min($likedProductsCount, $products->count()));
+        
+        // Create likes for products
+        foreach ($products as $product) {
+            // Randomly select 0-5 users to like this product
+            $likeCount = rand(0, 5);
+            $randomUsers = $users->random($likeCount);
             
-            foreach ($randomProducts as $product) {
+            foreach ($randomUsers as $user) {
                 Like::create([
                     'user_id' => $user->id,
                     'likeable_id' => $product->id,
                     'likeable_type' => Product::class,
                 ]);
             }
-
-            // User likes 0-5 random blog posts
-            $likedBlogPostsCount = rand(0, 5);
-            $randomBlogPosts = $blogPosts->random(min($likedBlogPostsCount, $blogPosts->count()));
+        }
+        
+        // Create likes for blog posts
+        foreach ($blogPosts as $blogPost) {
+            // Randomly select 0-10 users to like this blog post
+            $likeCount = rand(0, 10);
+            $randomUsers = $users->random($likeCount);
             
-            foreach ($randomBlogPosts as $blogPost) {
+            foreach ($randomUsers as $user) {
                 Like::create([
                     'user_id' => $user->id,
                     'likeable_id' => $blogPost->id,

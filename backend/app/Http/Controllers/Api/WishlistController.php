@@ -6,27 +6,48 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\WishlistStoreRequest;
 use App\Http\Requests\WishlistUpdateRequest;
 use App\Models\Wishlist;
-use App\Models\WishlistItem;
-use Illuminate\Http\JsonResponse;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class WishlistController extends Controller
 {
     /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->authorizeResource(Wishlist::class, 'wishlist');
+    }
+
+    /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
-        $this->authorize('viewAny', Wishlist::class);
+        $query = Wishlist::with(['items.product']);
 
-        $query = Wishlist::with(['user', 'items.product']);
-
-        // Filter by user_id if provided
-        if ($request->has('user_id')) {
-            $query->where('user_id', $request->user_id);
+        // Filter by user if not admin
+        if (!$request->user()->hasRole('Admin')) {
+            $query->where('user_id', $request->user()->id);
+        } else if ($request->has('user_id')) {
+            $query->where('user_id', $request->input('user_id'));
         }
 
-        $wishlists = $query->paginate($request->per_page ?? 15);
+        // Apply filters
+        if ($request->has('is_public')) {
+            $query->where('is_public', $request->boolean('is_public'));
+        }
+
+        // Apply sorting
+        $sortField = $request->input('sort_field', 'created_at');
+        $sortDirection = $request->input('sort_direction', 'desc');
+        $query->orderBy($sortField, $sortDirection);
+
+        // Paginate results
+        $perPage = $request->input('per_page', 10);
+        $wishlists = $query->paginate($perPage);
 
         return response()->json($wishlists);
     }
@@ -34,21 +55,17 @@ class WishlistController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(WishlistStoreRequest $request): JsonResponse
+    public function store(WishlistStoreRequest $request)
     {
-        $this->authorize('create', Wishlist::class);
-
-        $wishlist = Wishlist::create($request->validated());
-
-        // Add products to wishlist if provided
-        if ($request->has('product_ids')) {
-            foreach ($request->product_ids as $productId) {
-                WishlistItem::create([
-                    'wishlist_id' => $wishlist->id,
-                    'product_id' => $productId,
-                ]);
-            }
+        $data = $request->validated();
+        
+        // Set user_id to current user if not provided
+        if (!isset($data['user_id'])) {
+            $data['user_id'] = $request->user()->id;
         }
+
+        $wishlist = Wishlist::create($data);
+        $wishlist->load('items.product');
 
         return response()->json($wishlist, 201);
     }
@@ -56,23 +73,22 @@ class WishlistController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Wishlist $wishlist): JsonResponse
+    public function show(Wishlist $wishlist)
     {
-        $this->authorize('view', $wishlist);
-
-        $wishlist->load(['user', 'items.product']);
-
+        $wishlist->load('items.product');
+        
         return response()->json($wishlist);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(WishlistUpdateRequest $request, Wishlist $wishlist): JsonResponse
+    public function update(WishlistUpdateRequest $request, Wishlist $wishlist)
     {
-        $this->authorize('update', $wishlist);
-
-        $wishlist->update($request->validated());
+        $data = $request->validated();
+        
+        $wishlist->update($data);
+        $wishlist->load('items.product');
 
         return response()->json($wishlist);
     }
@@ -80,10 +96,8 @@ class WishlistController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Wishlist $wishlist): JsonResponse
+    public function destroy(Wishlist $wishlist)
     {
-        $this->authorize('delete', $wishlist);
-
         $wishlist->delete();
 
         return response()->json(null, 204);
@@ -92,78 +106,70 @@ class WishlistController extends Controller
     /**
      * Add a product to the wishlist.
      */
-    public function addProduct(Request $request, Wishlist $wishlist): JsonResponse
+    public function addProduct(Request $request, Wishlist $wishlist)
     {
         $this->authorize('update', $wishlist);
 
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'notes' => 'nullable|string',
-            'priority' => 'nullable|integer|min:0|max:10',
         ]);
+
+        $product = Product::findOrFail($request->input('product_id'));
 
         // Check if product already exists in wishlist
-        $existingItem = WishlistItem::where('wishlist_id', $wishlist->id)
-            ->where('product_id', $request->product_id)
-            ->first();
-
-        if ($existingItem) {
-            return response()->json(['message' => 'Product already in wishlist'], 422);
+        if (!$wishlist->products()->where('product_id', $product->id)->exists()) {
+            $wishlist->products()->attach($product->id, [
+                'notes' => $request->input('notes'),
+            ]);
         }
 
-        $wishlistItem = WishlistItem::create([
-            'wishlist_id' => $wishlist->id,
-            'product_id' => $request->product_id,
-            'notes' => $request->notes,
-            'priority' => $request->priority ?? 0,
-        ]);
+        $wishlist->load('items.product');
 
-        return response()->json($wishlistItem, 201);
+        return response()->json($wishlist);
     }
 
     /**
      * Remove a product from the wishlist.
      */
-    public function removeProduct(Wishlist $wishlist, $productId): JsonResponse
-    {
-        $this->authorize('update', $wishlist);
-
-        $deleted = WishlistItem::where('wishlist_id', $wishlist->id)
-            ->where('product_id', $productId)
-            ->delete();
-
-        if (!$deleted) {
-            return response()->json(['message' => 'Product not found in wishlist'], 404);
-        }
-
-        return response()->json(null, 204);
-    }
-
-    /**
-     * Update a product in the wishlist.
-     */
-    public function updateProduct(Request $request, Wishlist $wishlist, $productId): JsonResponse
+    public function removeProduct(Request $request, Wishlist $wishlist)
     {
         $this->authorize('update', $wishlist);
 
         $request->validate([
-            'notes' => 'nullable|string',
-            'priority' => 'nullable|integer|min:0|max:10',
+            'product_id' => 'required|exists:products,id',
         ]);
 
-        $wishlistItem = WishlistItem::where('wishlist_id', $wishlist->id)
-            ->where('product_id', $productId)
-            ->first();
+        $product = Product::findOrFail($request->input('product_id'));
 
-        if (!$wishlistItem) {
-            return response()->json(['message' => 'Product not found in wishlist'], 404);
+        $wishlist->products()->detach($product->id);
+        $wishlist->load('items.product');
+
+        return response()->json($wishlist);
+    }
+
+    /**
+     * Get public wishlists.
+     */
+    public function publicIndex(Request $request)
+    {
+        $query = Wishlist::with(['items.product', 'user'])
+            ->where('is_public', true);
+
+        // Apply filters
+        if ($request->has('user_id')) {
+            $query->where('user_id', $request->input('user_id'));
         }
 
-        $wishlistItem->update([
-            'notes' => $request->notes ?? $wishlistItem->notes,
-            'priority' => $request->priority ?? $wishlistItem->priority,
-        ]);
+        // Apply sorting
+        $sortField = $request->input('sort_field', 'created_at');
+        $sortDirection = $request->input('sort_direction', 'desc');
+        $query->orderBy($sortField, $sortDirection);
 
-        return response()->json($wishlistItem);
+        // Paginate results
+        $perPage = $request->input('per_page', 10);
+        $wishlists = $query->paginate($perPage);
+
+        return response()->json($wishlists);
     }
 }

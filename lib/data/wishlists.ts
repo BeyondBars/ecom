@@ -1,146 +1,84 @@
-export interface Wishlist {
-  id: number
-  name: string
-  description?: string
-  user: {
-    id: number
-    name: string
-    email: string
-  }
-  itemsCount: number
-  isPublic: boolean
-  createdAt: string
-}
-
-export interface WishlistItem {
-  id: number
-  wishlistId: number
-  productId: number
-  product: {
-    id: number
-    name: string
-    price: number
-    image: string
-  }
-  notes?: string
-  priority: number
-  createdAt: string
-}
-
-export async function getWishlists() {
-  // This would be an API call in a real application
-  return [
-    {
-      id: 1,
-      name: "Summer Wishlist",
-      user: {
-        id: 1,
-        name: "John Doe",
-        email: "john@example.com",
-      },
-      itemsCount: 5,
-      isPublic: true,
-      createdAt: "2023-04-15T10:00:00Z",
+export const wishlists = [
+  {
+    id: "1",
+    user_id: "1",
+    user: {
+      id: "1",
+      name: "John Doe",
+      email: "john@example.com",
     },
-    {
-      id: 2,
-      name: "Birthday Ideas",
-      user: {
-        id: 2,
-        name: "Jane Smith",
-        email: "jane@example.com",
+    name: "My Wishlist",
+    is_public: true,
+    description: "Products I want to buy soon",
+    created_at: "2023-05-15T10:00:00Z",
+    updated_at: "2023-05-15T10:00:00Z",
+    items: [
+      {
+        id: "1",
+        wishlist_id: "1",
+        product_id: "1",
+        product: {
+          id: "1",
+          name: "Smartphone X",
+          price: 799.99,
+          thumbnail: "/modern-smartphone.png",
+        },
+        notes: "I need a new phone",
+        created_at: "2023-05-15T10:05:00Z",
       },
-      itemsCount: 12,
-      isPublic: false,
-      createdAt: "2023-05-20T14:30:00Z",
-    },
-    {
-      id: 3,
-      name: "Tech Gadgets",
-      user: {
-        id: 3,
-        name: "Bob Johnson",
-        email: "bob@example.com",
+      {
+        id: "2",
+        wishlist_id: "1",
+        product_id: "3",
+        product: {
+          id: "3",
+          name: "Wireless Headphones",
+          price: 149.99,
+          thumbnail: "/diverse-people-listening-headphones.png",
+        },
+        notes: null,
+        created_at: "2023-05-15T10:10:00Z",
       },
-      itemsCount: 8,
-      isPublic: true,
-      createdAt: "2023-06-10T09:15:00Z",
+    ],
+  },
+  {
+    id: "2",
+    user_id: "1",
+    user: {
+      id: "1",
+      name: "John Doe",
+      email: "john@example.com",
     },
-    {
-      id: 4,
-      name: "Home Decor",
-      user: {
-        id: 1,
-        name: "John Doe",
-        email: "john@example.com",
+    name: "Gift Ideas",
+    is_public: false,
+    description: "Gift ideas for family and friends",
+    created_at: "2023-06-20T14:30:00Z",
+    updated_at: "2023-06-20T14:30:00Z",
+    items: [
+      {
+        id: "3",
+        wishlist_id: "2",
+        product_id: "5",
+        product: {
+          id: "5",
+          name: "Smart Watch",
+          price: 249.99,
+          thumbnail: "/silver-ipad-on-wooden-desk.png",
+        },
+        notes: "For dad's birthday",
+        created_at: "2023-06-20T14:35:00Z",
       },
-      itemsCount: 15,
-      isPublic: false,
-      createdAt: "2023-07-05T16:45:00Z",
+    ],
+  },
+  {
+    id: "3",
+    user_id: "2",
+    user: {
+      id: "2",
+      name: "Jane Smith",
+      email: "jane@example.com",
     },
-    {
-      id: 5,
-      name: "Gift Ideas",
-      user: {
-        id: 4,
-        name: "Alice Williams",
-        email: "alice@example.com",
-      },
-      itemsCount: 7,
-      isPublic: true,
-      createdAt: "2023-08-12T11:20:00Z",
-    },
-  ]
-}
-
-export async function getWishlistById(id: number) {
-  const wishlists = await getWishlists()
-  return wishlists.find((wishlist) => wishlist.id === id)
-}
-
-export async function getWishlistItems(wishlistId: number) {
-  // This would be an API call in a real application
-  return [
-    {
-      id: 1,
-      wishlistId: wishlistId,
-      productId: 101,
-      product: {
-        id: 101,
-        name: "Wireless Headphones",
-        price: 99.99,
-        image: "/placeholder.svg",
-      },
-      notes: "I want these in black color",
-      priority: 8,
-      createdAt: "2023-04-15T10:00:00Z",
-    },
-    {
-      id: 2,
-      wishlistId: wishlistId,
-      productId: 102,
-      product: {
-        id: 102,
-        name: "Smart Watch Series 7",
-        price: 299.99,
-        image: "/placeholder.svg",
-      },
-      notes: "The silver one looks nice",
-      priority: 5,
-      createdAt: "2023-04-16T11:30:00Z",
-    },
-    {
-      id: 3,
-      wishlistId: wishlistId,
-      productId: 103,
-      product: {
-        id: 103,
-        name: "Bluetooth Speaker",
-        price: 79.99,
-        image: "/placeholder.svg",
-      },
-      priority: 3,
-      createdAt: "2023-04-17T14:45:00Z",
-    },
-  ]
-}
+    name: "Tech Gadgets",
+    is_public: true,
+    description: "Cool tech gadgets I'm interested in",
+    created_

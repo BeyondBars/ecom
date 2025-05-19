@@ -16,7 +16,7 @@ class LikeTest extends TestCase
     /**
      * Test liking a product.
      */
-    public function test_can_like_product(): void
+    public function test_can_like_product()
     {
         $user = User::factory()->create();
         $product = Product::factory()->create();
@@ -34,15 +34,13 @@ class LikeTest extends TestCase
             'likeable_type' => Product::class,
         ]);
         
-        // Test relationship
-        $this->assertTrue($product->likes->contains($like->id));
-        $this->assertEquals(1, $product->likes->count());
+        $this->assertTrue($product->likes()->where('user_id', $user->id)->exists());
     }
-    
+
     /**
      * Test liking a blog post.
      */
-    public function test_can_like_blog_post(): void
+    public function test_can_like_blog_post()
     {
         $user = User::factory()->create();
         $blogPost = BlogPost::factory()->create();
@@ -60,33 +58,13 @@ class LikeTest extends TestCase
             'likeable_type' => BlogPost::class,
         ]);
         
-        // Test relationship
-        $this->assertTrue($blogPost->likes->contains($like->id));
-        $this->assertEquals(1, $blogPost->likes->count());
+        $this->assertTrue($blogPost->likes()->where('user_id', $user->id)->exists());
     }
-    
-    /**
-     * Test user-like relationship.
-     */
-    public function test_user_like_relationship(): void
-    {
-        $user = User::factory()->create();
-        $product = Product::factory()->create();
-        
-        $like = Like::create([
-            'user_id' => $user->id,
-            'likeable_id' => $product->id,
-            'likeable_type' => Product::class,
-        ]);
-        
-        $this->assertTrue($user->likes->contains($like->id));
-        $this->assertEquals($user->id, $like->user->id);
-    }
-    
+
     /**
      * Test unliking a product.
      */
-    public function test_can_unlike_product(): void
+    public function test_can_unlike_product()
     {
         $user = User::factory()->create();
         $product = Product::factory()->create();
@@ -97,18 +75,61 @@ class LikeTest extends TestCase
             'likeable_type' => Product::class,
         ]);
         
-        $this->assertDatabaseHas('likes', [
-            'user_id' => $user->id,
-            'likeable_id' => $product->id,
-            'likeable_type' => Product::class,
-        ]);
+        $this->assertTrue($product->likes()->where('user_id', $user->id)->exists());
         
         $like->delete();
         
+        $this->assertFalse($product->likes()->where('user_id', $user->id)->exists());
         $this->assertDatabaseMissing('likes', [
+            'id' => $like->id,
+        ]);
+    }
+
+    /**
+     * Test user relationship with likes.
+     */
+    public function test_user_has_likes()
+    {
+        $user = User::factory()->create();
+        $product = Product::factory()->create();
+        $blogPost = BlogPost::factory()->create();
+        
+        Like::create([
             'user_id' => $user->id,
             'likeable_id' => $product->id,
             'likeable_type' => Product::class,
         ]);
+        
+        Like::create([
+            'user_id' => $user->id,
+            'likeable_id' => $blogPost->id,
+            'likeable_type' => BlogPost::class,
+        ]);
+        
+        $this->assertEquals(2, $user->likes()->count());
+    }
+
+    /**
+     * Test product relationship with likes.
+     */
+    public function test_product_has_likes()
+    {
+        $product = Product::factory()->create();
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+        
+        Like::create([
+            'user_id' => $user1->id,
+            'likeable_id' => $product->id,
+            'likeable_type' => Product::class,
+        ]);
+        
+        Like::create([
+            'user_id' => $user2->id,
+            'likeable_id' => $product->id,
+            'likeable_type' => Product::class,
+        ]);
+        
+        $this->assertEquals(2, $product->likes()->count());
     }
 }

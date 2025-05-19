@@ -4,10 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class BlogPost extends Model
 {
@@ -23,10 +19,13 @@ class BlogPost extends Model
         'slug',
         'content',
         'excerpt',
-        'image',
-        'user_id',
+        'author_id',
+        'featured_image',
         'status',
         'published_at',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
     ];
 
     /**
@@ -35,39 +34,39 @@ class BlogPost extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'status' => 'boolean',
         'published_at' => 'datetime',
     ];
 
     /**
-     * Get the user that owns the blog post.
+     * Get the author that owns the blog post.
      */
-    public function user(): BelongsTo
+    public function author()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'author_id');
     }
 
     /**
      * Get the comments for the blog post.
      */
-    public function comments(): HasMany
+    public function comments()
     {
-        return $this->hasMany(Comment::class);
+        return $this->morphMany(Comment::class, 'commentable');
     }
 
     /**
      * Get the likes for the blog post.
      */
-    public function likes(): MorphMany
+    public function likes()
     {
         return $this->morphMany(Like::class, 'likeable');
     }
 
     /**
-     * Get the users who liked this blog post.
+     * Scope a query to only include published blog posts.
      */
-    public function likedBy(): BelongsToMany
+    public function scopePublished($query)
     {
-        return $this->morphToMany(User::class, 'likeable', 'likes');
+        return $query->where('status', 'published')
+            ->where('published_at', '<=', now());
     }
 }

@@ -5,179 +5,173 @@ namespace Tests\Feature;
 use App\Models\BlogPost;
 use App\Models\Like;
 use App\Models\Product;
-use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class LikeApiTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
 
     /**
-     * Setup the test environment.
+     * Test getting all likes.
      */
-    protected function setUp(): void
+    public function test_can_get_all_likes()
     {
-        parent::setUp();
+        $user = User::factory()->create();
+        $product = Product::factory()->create();
+        $blogPost = BlogPost::factory()->create();
         
-        // Create admin role with all permissions
-        $this->adminRole = Role::factory()->create(['name' => 'Admin']);
+        Like::factory()->create([
+            'user_id' => $user->id,
+            'likeable_id' => $product->id,
+            'likeable_type' => Product::class,
+        ]);
         
-        // Create admin user
-        $this->admin = User::factory()->create(['role_id' => $this->adminRole->id]);
+        Like::factory()->create([
+            'user_id' => $user->id,
+            'likeable_id' => $blogPost->id,
+            'likeable_type' => BlogPost::class,
+        ]);
         
-        // Create regular user
-        $this->user = User::factory()->create();
-        
-        // Create product and blog post
-        $this->product = Product::factory()->create();
-        $this->blogPost = BlogPost::factory()->create();
-    }
-
-    /**
-     * Test admin can view all likes.
-     */
-    public function test_admin_can_view_all_likes(): void
-    {
-        Sanctum::actingAs($this->admin);
-        
-        // Create likes
-        Like::factory()->count(3)->create();
+        Sanctum::actingAs($user);
         
         $response = $this->getJson('/api/likes');
         
         $response->assertStatus(200)
-            ->assertJsonStructure([
-                'data',
-                'current_page',
-                'total',
-            ]);
-        
-        $this->assertEquals(3, $response->json('total'));
+            ->assertJsonCount(2, 'data');
     }
-    
+
     /**
-     * Test user can like a product.
+     * Test toggling like for a product.
      */
-    public function test_user_can_like_product(): void
+    public function test_can_toggle_product_like()
     {
-        Sanctum::actingAs($this->user);
+        $user = User::factory()->create();
+        $product = Product::factory()->create();
         
-        $response = $this->postJson("/api/products/{$this->product->id}/like");
+        Sanctum::actingAs($user);
+        
+        // Like the product
+        $response = $this->postJson("/api/products/{$product->id}/like");
         
         $response->assertStatus(200)
             ->assertJson([
                 'liked' => true,
+                'likes_count' => 1,
             ]);
-        
+            
         $this->assertDatabaseHas('likes', [
-            'user_id' => $this->user->id,
-            'likeable_id' => $this->product->id,
-            'likeable_type' => Product::class,
-        ]);
-    }
-    
-    /**
-     * Test user can unlike a product.
-     */
-    public function test_user_can_unlike_product(): void
-    {
-        Sanctum::actingAs($this->user);
-        
-        // First like the product
-        Like::create([
-            'user_id' => $this->user->id,
-            'likeable_id' => $this->product->id,
+            'user_id' => $user->id,
+            'likeable_id' => $product->id,
             'likeable_type' => Product::class,
         ]);
         
-        // Then unlike it
-        $response = $this->postJson("/api/products/{$this->product->id}/like");
+        // Unlike the product
+        $response = $this->postJson("/api/products/{$product->id}/like");
         
         $response->assertStatus(200)
             ->assertJson([
                 'liked' => false,
+                'likes_count' => 0,
             ]);
-        
+            
         $this->assertDatabaseMissing('likes', [
-            'user_id' => $this->user->id,
-            'likeable_id' => $this->product->id,
+            'user_id' => $user->id,
+            'likeable_id' => $product->id,
             'likeable_type' => Product::class,
         ]);
     }
-    
+
     /**
-     * Test user can like a blog post.
+     * Test toggling like for a blog post.
      */
-    public function test_user_can_like_blog_post(): void
+    public function test_can_toggle_blog_post_like()
     {
-        Sanctum::actingAs($this->user);
+        $user = User::factory()->create();
+        $blogPost = BlogPost::factory()->create();
         
-        $response = $this->postJson("/api/blog-posts/{$this->blogPost->id}/like");
+        Sanctum::actingAs($user);
+        
+        // Like the blog post
+        $response = $this->postJson("/api/blog-posts/{$blogPost->id}/like");
         
         $response->assertStatus(200)
             ->assertJson([
                 'liked' => true,
+                'likes_count' => 1,
             ]);
-        
+            
         $this->assertDatabaseHas('likes', [
-            'user_id' => $this->user->id,
-            'likeable_id' => $this->blogPost->id,
+            'user_id' => $user->id,
+            'likeable_id' => $blogPost->id,
+            'likeable_type' => BlogPost::class,
+        ]);
+        
+        // Unlike the blog post
+        $response = $this->postJson("/api/blog-posts/{$blogPost->id}/like");
+        
+        $response->assertStatus(200)
+            ->assertJson([
+                'liked' => false,
+                'likes_count' => 0,
+            ]);
+            
+        $this->assertDatabaseMissing('likes', [
+            'user_id' => $user->id,
+            'likeable_id' => $blogPost->id,
             'likeable_type' => BlogPost::class,
         ]);
     }
-    
+
     /**
-     * Test getting product likes count.
+     * Test checking if user has liked a product.
      */
-    public function test_can_get_product_likes_count(): void
+    public function test_can_check_product_like()
     {
-        Sanctum::actingAs($this->user);
+        $user = User::factory()->create();
+        $product = Product::factory()->create();
         
-        // Create 3 likes for the product
-        Like::factory()->count(3)->create([
-            'likeable_id' => $this->product->id,
-            'likeable_type' => Product::class,
-        ]);
-        
-        $response = $this->getJson("/api/products/{$this->product->id}/likes/count");
-        
-        $response->assertStatus(200)
-            ->assertJson([
-                'count' => 3,
-            ]);
-    }
-    
-    /**
-     * Test checking if user liked a product.
-     */
-    public function test_can_check_if_user_liked_product(): void
-    {
-        Sanctum::actingAs($this->user);
-        
-        // User hasn't liked the product yet
-        $response = $this->getJson("/api/products/{$this->product->id}/liked");
-        
-        $response->assertStatus(200)
-            ->assertJson([
-                'liked' => false,
-            ]);
-        
-        // User likes the product
         Like::create([
-            'user_id' => $this->user->id,
-            'likeable_id' => $this->product->id,
+            'user_id' => $user->id,
+            'likeable_id' => $product->id,
             'likeable_type' => Product::class,
         ]);
         
-        $response = $this->getJson("/api/products/{$this->product->id}/liked");
+        Sanctum::actingAs($user);
+        
+        $response = $this->getJson("/api/products/{$product->id}/like");
         
         $response->assertStatus(200)
             ->assertJson([
                 'liked' => true,
+                'likes_count' => 1,
+            ]);
+    }
+
+    /**
+     * Test checking if user has liked a blog post.
+     */
+    public function test_can_check_blog_post_like()
+    {
+        $user = User::factory()->create();
+        $blogPost = BlogPost::factory()->create();
+        
+        Like::create([
+            'user_id' => $user->id,
+            'likeable_id' => $blogPost->id,
+            'likeable_type' => BlogPost::class,
+        ]);
+        
+        Sanctum::actingAs($user);
+        
+        $response = $this->getJson("/api/blog-posts/{$blogPost->id}/like");
+        
+        $response->assertStatus(200)
+            ->assertJson([
+                'liked' => true,
+                'likes_count' => 1,
             ]);
     }
 }
