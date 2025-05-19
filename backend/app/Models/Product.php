@@ -102,4 +102,28 @@ class Product extends Model
     {
         return $this->morphToMany(User::class, 'likeable', 'likes');
     }
+
+    /**
+     * Get the reviews for the product.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get the average rating for the product.
+     */
+    public function getAverageRatingAttribute()
+    {
+        return $this->reviews()->approved()->avg('rating') ?: 0;
+    }
+
+    /**
+     * Get the total number of reviews for the product.
+     */
+    public function getReviewsCountAttribute()
+    {
+        return $this->reviews()->approved()->count();
+    }
 }

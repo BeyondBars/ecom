@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
-use App\Models\Role;
 use Illuminate\Database\Seeder;
 
 class PermissionSeeder extends Seeder
@@ -13,163 +12,102 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create permissions
         $permissions = [
             // User permissions
-            'view_users',
-            'create_users',
-            'update_users',
-            'delete_users',
+            ['name' => 'view_users', 'description' => 'View users'],
+            ['name' => 'create_users', 'description' => 'Create users'],
+            ['name' => 'update_users', 'description' => 'Update users'],
+            ['name' => 'delete_users', 'description' => 'Delete users'],
             
             // Role permissions
-            'view_roles',
-            'create_roles',
-            'update_roles',
-            'delete_roles',
+            ['name' => 'view_roles', 'description' => 'View roles'],
+            ['name' => 'create_roles', 'description' => 'Create roles'],
+            ['name' => 'update_roles', 'description' => 'Update roles'],
+            ['name' => 'delete_roles', 'description' => 'Delete roles'],
             
             // Permission permissions
-            'view_permissions',
-            'create_permissions',
-            'update_permissions',
-            'delete_permissions',
+            ['name' => 'view_permissions', 'description' => 'View permissions'],
+            ['name' => 'create_permissions', 'description' => 'Create permissions'],
+            ['name' => 'update_permissions', 'description' => 'Update permissions'],
+            ['name' => 'delete_permissions', 'description' => 'Delete permissions'],
             
             // Product permissions
-            'view_products',
-            'create_products',
-            'update_products',
-            'delete_products',
+            ['name' => 'view_products', 'description' => 'View products'],
+            ['name' => 'create_products', 'description' => 'Create products'],
+            ['name' => 'update_products', 'description' => 'Update products'],
+            ['name' => 'delete_products', 'description' => 'Delete products'],
             
             // Category permissions
-            'view_categories',
-            'create_categories',
-            'update_categories',
-            'delete_categories',
+            ['name' => 'view_categories', 'description' => 'View categories'],
+            ['name' => 'create_categories', 'description' => 'Create categories'],
+            ['name' => 'update_categories', 'description' => 'Update categories'],
+            ['name' => 'delete_categories', 'description' => 'Delete categories'],
             
             // Brand permissions
-            'view_brands',
-            'create_brands',
-            'update_brands',
-            'delete_brands',
+            ['name' => 'view_brands', 'description' => 'View brands'],
+            ['name' => 'create_brands', 'description' => 'Create brands'],
+            ['name' => 'update_brands', 'description' => 'Update brands'],
+            ['name' => 'delete_brands', 'description' => 'Delete brands'],
             
             // Order permissions
-            'view_orders',
-            'create_orders',
-            'update_orders',
-            'delete_orders',
+            ['name' => 'view_orders', 'description' => 'View orders'],
+            ['name' => 'create_orders', 'description' => 'Create orders'],
+            ['name' => 'update_orders', 'description' => 'Update orders'],
+            ['name' => 'delete_orders', 'description' => 'Delete orders'],
             
             // Blog post permissions
-            'view_blog_posts',
-            'create_blog_posts',
-            'update_blog_posts',
-            'delete_blog_posts',
+            ['name' => 'view_blog_posts', 'description' => 'View blog posts'],
+            ['name' => 'create_blog_posts', 'description' => 'Create blog posts'],
+            ['name' => 'update_blog_posts', 'description' => 'Update blog posts'],
+            ['name' => 'delete_blog_posts', 'description' => 'Delete blog posts'],
             
             // Comment permissions
-            'view_comments',
-            'create_comments',
-            'update_comments',
-            'delete_comments',
-            'moderate_comments',
+            ['name' => 'view_comments', 'description' => 'View comments'],
+            ['name' => 'create_comments', 'description' => 'Create comments'],
+            ['name' => 'update_comments', 'description' => 'Update comments'],
+            ['name' => 'delete_comments', 'description' => 'Delete comments'],
+            ['name' => 'approve_comments', 'description' => 'Approve comments'],
             
             // Setting permissions
-            'view_settings',
-            'update_settings',
+            ['name' => 'view_settings', 'description' => 'View settings'],
+            ['name' => 'update_settings', 'description' => 'Update settings'],
             
             // Invoice permissions
-            'view_invoices',
-            'create_invoices',
-            'update_invoices',
-            'delete_invoices',
-            'generate_invoice_pdf',
+            ['name' => 'view_invoices', 'description' => 'View invoices'],
+            ['name' => 'create_invoices', 'description' => 'Create invoices'],
+            ['name' => 'update_invoices', 'description' => 'Update invoices'],
+            ['name' => 'delete_invoices', 'description' => 'Delete invoices'],
+            ['name' => 'generate_invoices', 'description' => 'Generate invoices'],
             
             // Wishlist permissions
-            'view_wishlists',
-            'create_wishlists',
-            'update_wishlists',
-            'delete_wishlists',
+            ['name' => 'view_wishlists', 'description' => 'View wishlists'],
+            ['name' => 'create_wishlists', 'description' => 'Create wishlists'],
+            ['name' => 'update_wishlists', 'description' => 'Update wishlists'],
+            ['name' => 'delete_wishlists', 'description' => 'Delete wishlists'],
             
             // Like permissions
-            'view_likes',
-            'create_likes',
-            'update_likes',
-            'delete_likes',
+            ['name' => 'view_likes', 'description' => 'View likes'],
+            ['name' => 'create_likes', 'description' => 'Create likes'],
+            ['name' => 'delete_likes', 'description' => 'Delete likes'],
             
             // Notification permissions
-            'view_notifications',
-            'create_notifications',
-            'update_notifications',
-            'delete_notifications',
-            'view_all_notifications',
-            'update_all_notifications',
-            'delete_all_notifications',
+            ['name' => 'view_notifications', 'description' => 'View notifications'],
+            ['name' => 'create_notifications', 'description' => 'Create notifications'],
+            ['name' => 'update_notifications', 'description' => 'Update notifications'],
+            ['name' => 'delete_notifications', 'description' => 'Delete notifications'],
+            
+            // Review permissions
+            ['name' => 'view_reviews', 'description' => 'View reviews'],
+            ['name' => 'create_reviews', 'description' => 'Create reviews'],
+            ['name' => 'update_reviews', 'description' => 'Update reviews'],
+            ['name' => 'delete_reviews', 'description' => 'Delete reviews'],
+            ['name' => 'approve_reviews', 'description' => 'Approve reviews'],
+            ['name' => 'feature_reviews', 'description' => 'Feature reviews'],
+            ['name' => 'view_unapproved_reviews', 'description' => 'View unapproved reviews'],
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::create($permission);
         }
-
-        // Assign permissions to roles
-        $roles = Role::all();
-
-        // Admin role - all permissions
-        $adminRole = $roles->where('name', 'admin')->first();
-        $adminRole->permissions()->attach(Permission::all());
-
-        // Manager role - most permissions except critical ones
-        $managerRole = $roles->where('name', 'manager')->first();
-        $managerPermissions = Permission::whereNotIn('name', [
-            'delete_users',
-            'delete_roles',
-            'create_permissions',
-            'update_permissions',
-            'delete_permissions',
-        ])->get();
-        $managerRole->permissions()->attach($managerPermissions);
-
-        // Editor role - content-related permissions
-        $editorRole = $roles->where('name', 'editor')->first();
-        $editorPermissions = Permission::whereIn('name', [
-            'view_products',
-            'create_products',
-            'update_products',
-            'view_categories',
-            'create_categories',
-            'update_categories',
-            'view_brands',
-            'create_brands',
-            'update_brands',
-            'view_blog_posts',
-            'create_blog_posts',
-            'update_blog_posts',
-            'view_comments',
-            'create_comments',
-            'update_comments',
-            'moderate_comments',
-            'view_wishlists',
-            'view_likes',
-            'view_notifications',
-        ])->get();
-        $editorRole->permissions()->attach($editorPermissions);
-
-        // Customer role - basic permissions
-        $customerRole = $roles->where('name', 'customer')->first();
-        $customerPermissions = Permission::whereIn('name', [
-            'view_products',
-            'view_categories',
-            'view_brands',
-            'view_blog_posts',
-            'view_comments',
-            'create_comments',
-            'update_comments',
-            'view_wishlists',
-            'create_wishlists',
-            'update_wishlists',
-            'delete_wishlists',
-            'view_likes',
-            'create_likes',
-            'update_likes',
-            'delete_likes',
-            'view_notifications',
-        ])->get();
-        $customerRole->permissions()->attach($customerPermissions);
     }
 }

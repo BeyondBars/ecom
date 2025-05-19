@@ -106,6 +106,11 @@ const navItems: NavItem[] = [
     icon: MessageSquare,
   },
   {
+    title: "Reviews",
+    href: "/reviews",
+    icon: MessageSquare,
+  },
+  {
     title: "Settings",
     href: "/settings",
     icon: Settings,
