@@ -27,6 +27,8 @@ import {
   Heart,
   ThumbsUp,
   Ticket,
+  ImageIcon,
+  Mail,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -80,6 +82,16 @@ const navItems: NavItem[] = [
     title: "Coupons",
     href: "/coupons",
     icon: Ticket,
+  },
+  {
+    title: "Banners",
+    href: "/banners",
+    icon: ImageIcon,
+  },
+  {
+    title: "Email Templates",
+    href: "/email-templates",
+    icon: Mail,
   },
   {
     title: "Users",

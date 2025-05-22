@@ -142,4 +142,26 @@ export const permissions = [
       { roleId: "5", view: true, create: false, update: false, delete: false },
     ],
   },
+  {
+    id: "14",
+    module: "Banners",
+    rolePermissions: [
+      { roleId: "1", view: true, create: true, update: true, delete: true },
+      { roleId: "2", view: true, create: true, update: true, delete: true },
+      { roleId: "3", view: true, create: false, update: false, delete: false },
+      { roleId: "4", view: true, create: false, update: false, delete: false },
+      { roleId: "5", view: true, create: false, update: false, delete: false },
+    ],
+  },
+  {
+    id: "15",
+    module: "Email Templates",
+    rolePermissions: [
+      { roleId: "1", view: true, create: true, update: true, delete: true },
+      { roleId: "2", view: true, create: true, update: true, delete: false },
+      { roleId: "3", view: false, create: false, update: false, delete: false },
+      { roleId: "4", view: false, create: false, update: false, delete: false },
+      { roleId: "5", view: false, create: false, update: false, delete: false },
+    ],
+  },
 ]
