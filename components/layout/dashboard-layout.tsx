@@ -26,6 +26,7 @@ import {
   Receipt,
   Heart,
   ThumbsUp,
+  Ticket,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -74,6 +75,11 @@ const navItems: NavItem[] = [
     title: "Invoices",
     href: "/invoices",
     icon: Receipt,
+  },
+  {
+    title: "Coupons",
+    href: "/coupons",
+    icon: Ticket,
   },
   {
     title: "Users",
