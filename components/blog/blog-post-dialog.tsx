@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -24,6 +24,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar } from "@/components/ui/calendar"
+import { ContentEditor } from "@/components/editor/content-editor"
 
 const categories = [
   { label: "E-commerce", value: "e-commerce" },
@@ -60,20 +61,38 @@ export function BlogPostDialog({ open, onOpenChange, post, onSave }: BlogPostDia
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const defaultValues: Partial<BlogPostFormValues> = {
-    title: post?.title || "",
-    slug: post?.slug || "",
-    excerpt: post?.excerpt || "",
-    content: post?.content || "",
-    category: post?.categories?.[0]?.toLowerCase() || "",
-    featuredImage: post?.featuredImage || "",
-    status: post?.status || "draft",
-    publishDate: post?.publishedAt ? new Date(post.publishedAt) : undefined,
+    title: "",
+    slug: "",
+    excerpt: "",
+    content: "",
+    category: "",
+    featuredImage: "",
+    status: "draft",
+    publishDate: undefined,
   }
 
   const form = useForm<BlogPostFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
   })
+
+  // Reset form with post data when editing
+  useEffect(() => {
+    if (post) {
+      form.reset({
+        title: post.title || "",
+        slug: post.slug || "",
+        excerpt: post.excerpt || "",
+        content: post.content || "",
+        category: post.categories?.[0]?.toLowerCase() || "",
+        featuredImage: post.featuredImage || "",
+        status: post.status || "draft",
+        publishDate: post.publishedAt ? new Date(post.publishedAt) : undefined,
+      })
+    } else {
+      form.reset(defaultValues)
+    }
+  }, [post, form])
 
   function onSubmit(data: BlogPostFormValues) {
     setIsSubmitting(true)
@@ -154,10 +173,10 @@ export function BlogPostDialog({ open, onOpenChange, post, onSave }: BlogPostDia
                 <FormItem>
                   <FormLabel>Content</FormLabel>
                   <FormControl>
-                    <Textarea
+                    <ContentEditor
+                      content={field.value}
+                      onChange={field.onChange}
                       placeholder="Write your blog post content here..."
-                      className="min-h-[200px] resize-none"
-                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
@@ -226,7 +245,7 @@ export function BlogPostDialog({ open, onOpenChange, post, onSave }: BlogPostDia
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select status" />
