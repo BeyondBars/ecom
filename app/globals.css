@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  :root,
+  .scheme-default {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -47,6 +48,121 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
   }
+
+  /* Ocean Theme */
+  .scheme-ocean {
+    --background: 210 50% 98%;
+    --foreground: 205 100% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 205 100% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 205 100% 20%;
+    --primary: 195 80% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 180 70% 45%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 195 80% 92%;
+    --accent-foreground: 195 80% 40%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 195 80% 85%;
+    --input: 195 80% 85%;
+    --ring: 195 80% 40%;
+  }
+
+  /* Forest Theme */
+  .scheme-forest {
+    --background: 120 20% 98%;
+    --foreground: 120 80% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 120 80% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 120 80% 10%;
+    --primary: 140 70% 30%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 120 60% 40%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 120 20% 92%;
+    --muted-foreground: 120 20% 40%;
+    --accent: 140 70% 90%;
+    --accent-foreground: 140 70% 30%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 140 30% 85%;
+    --input: 140 30% 85%;
+    --ring: 140 70% 30%;
+  }
+
+  /* Sunset Theme */
+  .scheme-sunset {
+    --background: 30 50% 98%;
+    --foreground: 20 80% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 20 80% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 80% 15%;
+    --primary: 20 90% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 320 70% 55%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 30 50% 92%;
+    --muted-foreground: 20 40% 40%;
+    --accent: 20 90% 90%;
+    --accent-foreground: 20 90% 50%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 20 50% 85%;
+    --input: 20 50% 85%;
+    --ring: 20 90% 50%;
+  }
+
+  /* Midnight Theme */
+  .scheme-midnight {
+    --background: 220 40% 10%;
+    --foreground: 220 40% 98%;
+    --card: 220 40% 13%;
+    --card-foreground: 220 40% 98%;
+    --popover: 220 40% 13%;
+    --popover-foreground: 220 40% 98%;
+    --primary: 220 70% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 40% 30%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 40% 20%;
+    --muted-foreground: 220 40% 70%;
+    --accent: 220 70% 25%;
+    --accent-foreground: 220 70% 90%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 220 40% 25%;
+    --input: 220 40% 25%;
+    --ring: 220 70% 50%;
+  }
+
+  /* Lavender Theme */
+  .scheme-lavender {
+    --background: 280 30% 98%;
+    --foreground: 280 80% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 280 80% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 280 80% 15%;
+    --primary: 280 70% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 320 70% 60%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 280 30% 92%;
+    --muted-foreground: 280 20% 40%;
+    --accent: 280 70% 90%;
+    --accent-foreground: 280 70% 50%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 280 30% 85%;
+    --input: 280 30% 85%;
+    --ring: 280 70% 50%;
+  }
 }
 
 @layer base {
@@ -55,5 +171,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
