@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "PORT=8080 next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -53,6 +53,7 @@
     "@tiptap/react": "latest",
     "@tiptap/starter-kit": "latest",
     "autoprefixer": "^10.4.20",
+    "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
@@ -73,7 +74,8 @@
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.6",
-    "zod": "latest"
+    "zod": "latest",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@types/node": "^22",

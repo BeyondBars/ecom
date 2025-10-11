@@ -1,16 +1,19 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { TokenStorage } from "./lib/tokenHelper"
 
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
+  
   const path = request.nextUrl.pathname
 
+  /*
   // Define public paths that don't require authentication
   const isPublicPath =
     path === "/login" || path === "/register" || path === "/forgot-password" || path.startsWith("/reset-password/")
 
   // Get the token from the cookies
-  const token = request.cookies.get("auth_token")?.value || ""
+  const token = request.cookies.get("XSRF-TOKEN")?.value || ""
 
   // Redirect to login if accessing a protected route without a token
   if (!isPublicPath && !token) {
@@ -21,6 +24,7 @@ export function middleware(request: NextRequest) {
   if (isPublicPath && token) {
     return NextResponse.redirect(new URL("/dashboard", request.url))
   }
+    */
 
   return NextResponse.next()
 }
