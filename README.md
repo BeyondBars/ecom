@@ -1,4 +1,4 @@
-# ModernCommerce Admin Panel
+# Ecomlytics Admin Panel
 
 A modern, responsive admin panel for e-commerce platforms built with Next.js, React, and Tailwind CSS.
 

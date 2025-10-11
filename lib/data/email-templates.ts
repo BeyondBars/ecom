@@ -2,10 +2,10 @@ export const emailTemplates = [
   {
     id: "1",
     name: "Welcome Email",
-    subject: "Welcome to ModernCommerce, {{user.name}}!",
+    subject: "Welcome to Ecomlytics, {{user.name}}!",
     body: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #4f46e5;">Welcome to ModernCommerce!</h1>
+        <h1 style="color: #4f46e5;">Welcome to Ecomlytics!</h1>
         <p>Hello {{user.name}},</p>
         <p>Thank you for creating an account with us. We're excited to have you join our community!</p>
         <p>With your new account, you can:</p>
@@ -17,7 +17,7 @@ export const emailTemplates = [
         </ul>
         <p>If you have any questions, please don't hesitate to contact our support team.</p>
         <p>Happy shopping!</p>
-        <p>The ModernCommerce Team</p>
+        <p>The Ecomlytics Team</p>
       </div>
     `,
     type: "transactional",
@@ -35,8 +35,8 @@ export const emailTemplates = [
         <p>Hello {{user.name}},</p>
         <p>Thank you for your order. We're pleased to confirm that we've received your order #{{order.id}}.</p>
         <p>We'll send you another email when your order ships.</p>
-        <p>Thank you for shopping with ModernCommerce!</p>
-        <p>The ModernCommerce Team</p>
+        <p>Thank you for shopping with Ecomlytics!</p>
+        <p>The Ecomlytics Team</p>
       </div>
     `,
     type: "transactional",
@@ -47,7 +47,7 @@ export const emailTemplates = [
   {
     id: "3",
     name: "Password Reset",
-    subject: "Reset Your ModernCommerce Password",
+    subject: "Reset Your Ecomlytics Password",
     body: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #4f46e5;">Password Reset Request</h1>
@@ -58,7 +58,7 @@ export const emailTemplates = [
           <a href="#" style="background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a>
         </p>
         <p>This link will expire in 24 hours.</p>
-        <p>The ModernCommerce Team</p>
+        <p>The Ecomlytics Team</p>
       </div>
     `,
     type: "transactional",
@@ -80,7 +80,7 @@ export const emailTemplates = [
         <p style="text-align: center;">
           <a href="#" style="background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Complete Your Purchase</a>
         </p>
-        <p>The ModernCommerce Team</p>
+        <p>The Ecomlytics Team</p>
       </div>
     `,
     type: "marketing",
@@ -102,8 +102,8 @@ export const emailTemplates = [
         <p style="text-align: center;">
           <a href="#" style="background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Track Your Order</a>
         </p>
-        <p>Thank you for shopping with ModernCommerce!</p>
-        <p>The ModernCommerce Team</p>
+        <p>Thank you for shopping with Ecomlytics!</p>
+        <p>The Ecomlytics Team</p>
       </div>
     `,
     type: "transactional",
@@ -124,7 +124,7 @@ export const emailTemplates = [
         <p style="text-align: center;">
           <a href="#" style="background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Shop Now</a>
         </p>
-        <p>The ModernCommerce Team</p>
+        <p>The Ecomlytics Team</p>
       </div>
     `,
     type: "marketing",
@@ -147,7 +147,7 @@ export const emailTemplates = [
         </p>
         <p>Your feedback helps us improve and assists other customers in making informed decisions.</p>
         <p>Thank you for your support!</p>
-        <p>The ModernCommerce Team</p>
+        <p>The Ecomlytics Team</p>
       </div>
     `,
     type: "marketing",
@@ -170,7 +170,7 @@ export const emailTemplates = [
         <p style="text-align: center;">
           <a href="#" style="background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Shop Now</a>
         </p>
-        <p>The ModernCommerce Team</p>
+        <p>The Ecomlytics Team</p>
       </div>
     `,
     type: "marketing",
@@ -188,8 +188,8 @@ export const emailTemplates = [
         <p>Hello {{user.name}},</p>
         <p>We're happy to inform you that your order #{{order.id}} has been delivered!</p>
         <p>We hope you enjoy your purchase. If you have any questions or concerns, please don't hesitate to contact our customer service team.</p>
-        <p>Thank you for shopping with ModernCommerce!</p>
-        <p>The ModernCommerce Team</p>
+        <p>Thank you for shopping with Ecomlytics!</p>
+        <p>The Ecomlytics Team</p>
       </div>
     `,
     type: "transactional",
@@ -212,7 +212,7 @@ export const emailTemplates = [
           <a href="#" style="background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Update Payment</a>
         </p>
         <p>If you need assistance, please contact our customer support team.</p>
-        <p>The ModernCommerce Team</p>
+        <p>The Ecomlytics Team</p>
       </div>
     `,
     type: "transactional",

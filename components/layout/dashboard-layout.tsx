@@ -159,7 +159,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           <span className="sr-only">Toggle menu</span>
         </Button>
         <Link href="/dashboard" className="flex items-center gap-2 md:gap-3">
-          <span className="font-bold text-xl md:text-2xl">ModernCommerce</span>
+          <span className="font-bold text-xl md:text-2xl">Ecomlytics</span>
         </Link>
         <div className="relative ml-auto flex-1 md:grow-0 md:basis-1/3 lg:basis-1/4">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -242,7 +242,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           <SheetContent side="left" className="w-64 p-0">
             <div className="flex h-16 items-center border-b px-6">
               <Link href="/dashboard" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="font-bold">ModernCommerce</span>
+                <span className="font-bold">Ecomlytics</span>
               </Link>
               <Button variant="ghost" size="icon" className="ml-auto" onClick={() => setIsMobileMenuOpen(false)}>
                 <X className="h-5 w-5" />
