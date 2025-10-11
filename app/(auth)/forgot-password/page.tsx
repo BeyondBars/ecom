@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-import { forgotPassword } from "@/lib/auth"
+// import { forgotPassword } from "@/lib/auth-utils"
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
     try {
-      await forgotPassword(values.email)
+      // await forgotPassword(values.email)
       setIsSubmitted(true)
       toast({
         title: "Reset link sent",

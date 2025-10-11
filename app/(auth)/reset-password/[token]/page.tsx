@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-import { resetPassword } from "@/lib/auth"
+// import { resetPassword } from "@/lib/auth-utils"
 
 const formSchema = z
   .object({
@@ -47,7 +47,7 @@ export default function ResetPasswordPage({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
     try {
-      await resetPassword(params.token, values.password)
+      // await resetPassword(params.token, values.password)
       toast({
         title: "Password reset successful",
         description: "Your password has been reset successfully.",

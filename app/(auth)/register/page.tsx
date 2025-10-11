@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
-import { register as registerUser } from "@/lib/auth"
+import { register as registerUser } from "@/lib/auth-utils"
 
 const formSchema = z
   .object({

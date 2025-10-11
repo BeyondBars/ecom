@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { jwtDecode } from 'jwt-decode'
 import type { LoginCredentials, LoginResponse } from '@/types/auth'
-import type { User } from '@/lib/auth'
+import type { User } from "@/lib/stores/users"
 import apiService from '@/lib/apiService'
 
 interface AuthState {
