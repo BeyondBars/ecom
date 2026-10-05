@@ -1,0 +1,41 @@
+import './assets/css/nucleo-icons.css'
+import './assets/css/nucleo-svg.css'
+import './assets/css/material-dashboard.css'
+import './assets/css/app.scss'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon as fa } from '@fortawesome/vue-fontawesome'
+import { faChevronLeft, faFilePen, faUserSecret } from '@fortawesome/free-solid-svg-icons'
+import { faFacebookF, faGoogle } from '@fortawesome/free-brands-svg-icons'
+
+import { createApp, defineComponent, h } from 'vue'
+import { createPinia } from 'pinia'
+
+import App from './App.vue'
+import router from './router'
+import VueTelInput from 'vue-tel-input'
+import HTBFormField from '@/components/HTBFormField.vue'
+import toastPlugin from '@/utils/toast'
+import 'vue-tel-input/vue-tel-input.css'
+import httpPlugin from '@/utils/http'
+import VueSweetalert2 from 'vue-sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
+import moment from 'moment'
+// Add icons to the library
+library.add(faChevronLeft, faFilePen, faUserSecret, faFacebookF, faGoogle)
+
+const app = createApp(App)
+
+// Register global plugins
+app.use(VueTelInput)
+app.component(HTBFormField)
+app.use(createPinia())
+app.use(router)
+app.use(httpPlugin, { router })
+app.use(toastPlugin)
+app.use(VueSweetalert2)
+
+app.config.globalProperties.$date = (date, options = { format: 'DD/MM/YYYY [at] h:mm a' }) => {
+  return moment(date).format(options.format)
+};
+
+app.mount('#app')

@@ -1,0 +1,13 @@
+
+$fa: 'Font Awesome 6 Pro';
+$fa-font-path: "~@fortawesome/fontawesome-pro/webfonts";
+
+@import "font-awesome/scss/font-awesome.scss";
+#page-content-wrapper {
+    height: 100%;
+    overflow-y: auto;
+    position: relative;
+    min-height: 80vh;
+}
+
+
