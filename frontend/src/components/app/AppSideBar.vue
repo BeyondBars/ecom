@@ -67,19 +67,18 @@ const { logout } = useLogout()
 onMounted(() => {
   wrapper.value = document.querySelector('#wrapper')
 })
-const logoutUser = (async () => {
+const logoutUser = async () => {
   try {
     await logout()
   } catch (error) {
-    if (isAxiosError(error) && error.response?.data?.errors) {
-      setErrors(error.response.data.errors)
-
-      if (error.response.status === 429) return // No need to throw for rate limit errors
+    if (isAxiosError(error) && error.response?.data?.message) {
+      toast.error(error.response.data.message)
+      return
     }
 
     throw error
   }
-})
+}
 
 watch(route, () => {
   if (wrapper.value === null) {

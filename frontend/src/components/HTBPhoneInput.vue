@@ -16,7 +16,6 @@ export default {
     className: { type: String, default: '' },
     placeholder: { type: String, default: '' }
   },
-  emits: ['input'],
   setup(props) {
     // Get field data from VeeValidate
     const { value, errorMessage, handleBlur, handleChange } = useField(props.name)
@@ -35,12 +34,6 @@ export default {
         maskRef.value.maskRef.updateValue()
       }
     })
-    const onInput = () => {
-      const maskedValue = maskRef.value?.maskRef?.value || ''
-      const trimmed = maskedValue.replace(/\s+/g, '')
-      emit('input', trimmed)
-      value.value = trimmed
-    }
     return {
       fieldClasses,
       value,

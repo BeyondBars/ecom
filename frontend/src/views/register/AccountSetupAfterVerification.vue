@@ -4,9 +4,9 @@
       <div class="col-lg-5 col-md-8 col-12 mx-auto">
         <div class="card z-index-0 fadeIn3 fadeInBottom">
           <div class="card-body">
-            <img class="logo mt-4" src="@/assets/img/logo/logo.png" alt="She Codes" />
+            <img class="logo mt-4" src="@/assets/img/logo/logo.png" alt="Invoice" />
             <h4 class="text-primary font-weight-bolder mb-4">Account Setup</h4>
-            <form role="form" class="text-start" @submit="onSubmit">
+            <form role="form" class="text-start" novalidate @submit="onSubmit">
               <div class="mt-4 mb-4">
                 <HTBFormField name="first_name" label="First Name" type="text" />
                 <HTBFormField name="last_name" label="Last Name" type="text" />
@@ -20,19 +20,19 @@
                   className="mt-3 text-danger"
                 >
                   I agree to the 
-                  <a class="text-decoration-underline" href="#" target="_blank">privacy policy</a> 
+                  <a class="text-decoration-underline" href="#" target="_blank" rel="noopener">privacy policy</a> 
                   and 
-                  <a class="text-decoration-underline" :href="termsAndConditionsUrl" target="_blank">terms and conditions</a> of use.
+                  <a class="text-decoration-underline" :href="termsAndConditionsUrl" target="_blank" rel="noopener">terms and conditions</a> of use.
                 </HTBFormCheckbox>
               </div>
 
               <div class="row mt-4 mb-5">
                 <div class="col-auto text-end d-flex align-items-center">
-                  <a href="/" class="mb-2 text-sm mx-auto">Back to login.</a>
+                  <RouterLink :to="{ name: 'login' }" class="mb-2 text-sm mx-auto">Back to login.</RouterLink>
                 </div>
                 <div class="col text-end">
-                  <button class="btn btn-primary">
-                    <span class="label">Verify</span>
+                  <button type="submit" class="btn btn-primary" :disabled="!verified || isSubmitting">
+                    <span class="label">Create Account</span>
                   </button>
                 </div>
               </div>
@@ -44,63 +44,68 @@
   </div>
 </template>
 <script setup lang="ts">
+import { ref } from 'vue'
+import { isAxiosError } from 'axios'
+import { useForm, useField } from 'vee-validate'
+import * as yup from 'yup'
+import { useRoute, useRouter } from 'vue-router'
+import { useToast } from 'vue-toast-notification'
+import { useAppStore } from '@/stores/app'
 import HTBFormField from '@/components/HTBFormField.vue'
 import HTBPhoneInput from '@/components/HTBPhoneInput.vue'
 import HTBFormCheckbox from '@/components/HTBFormCheckbox.vue'
-import { isAxiosError } from 'axios'
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { useForm, useField } from 'vee-validate'
-import { useAppStore } from '@/stores/app'
-import { ref, watch, computed } from 'vue'
-import * as yup from 'yup'
-import { useValidation } from '@/utils/useValidation'
-import { useRoute, useRouter } from 'vue-router'
 import PasswordStrengthBar from '@/components/auth/PasswordStrengthBar.vue'
-import { useToast } from 'vue-toast-notification'
+
+/**
+ * /verify/:signature?email=...&expires=... - registration step 3. The signed link is validated on
+ * load, then the account is created and the API logs the new user straight in.
+ */
+const props = defineProps<{ signature: string }>()
+
 const toast = useToast()
 const router = useRouter()
-
-const appStore = useAppStore()
 const route = useRoute()
-const termsAndConditionsUrl = ref('#')
+const appStore = useAppStore()
 
+const termsAndConditionsUrl = import.meta.env.VITE_TERMS_URL || '#'
+const email = String(route.query.email ?? '')
+const verified = ref(false)
 
-/* 3️⃣ 📜 Validation Schema */
-const schema = yup.object({
-  first_name: yup.string().required(),
-  last_name: yup.string().required(),
-  mobile: yup.string().required(),
-  password: yup.string().required(),
-  password_confirmation: yup.string().required(),
-  agree_terms: yup.boolean().oneOf([true], 'You must accept the terms and conditions.')
-})
-
-/* 4️⃣ 📝 Form Handling */
-const { handleSubmit, resetForm, setErrors } = useForm({
-  validationSchema: schema,
+const { handleSubmit, setErrors, isSubmitting } = useForm({
+  validationSchema: yup.object({
+    first_name: yup.string().required('The first name is required.'),
+    last_name: yup.string().required('The last name is required.'),
+    mobile: yup.string().nullable(),
+    password: yup.string().required('The password is required.'),
+    password_confirmation: yup
+      .string()
+      .required('Please confirm the password.')
+      .oneOf([yup.ref('password')], 'The passwords do not match.'),
+    agree_terms: yup.boolean().oneOf([true], 'You must accept the terms and conditions.'),
+  }),
   initialValues: {
-    first_name: null,
-    last_name: null,
-    mobile: null,
-    password: null,
-    password_confirmation: null,
-    agree_terms: false
-  }
+    first_name: '',
+    last_name: '',
+    mobile: '',
+    password: '',
+    password_confirmation: '',
+    agree_terms: false,
+  },
 })
 
-const { value: first_name, errorMessage: firstNameError } = useField('first_name')
-const { value: last_name, errorMessage: lastNameError } = useField('last_name')
-const { value: password, errorMessage: passwordError } = useField('password')
-const { value: password_confirmation, errorMessage: confirmPasswordError } = useField('password_confirmation')
-const { value: agree_terms, errorMessage: agreeTermsError } = useField('agree_terms')
-const { accountSetup, verifySignature } = useAppStore()
+const { value: password } = useField<string>('password')
+
 const verifyOnLoad = async () => {
   try {
-    if (route.params.signature && route.query.email) {
-      await verifySignature({ signature: route.params.signature, expires: route.query.expires, email: route.query.email })
-    }
+    await appStore.verifySignature({
+      signature: props.signature,
+      expires: String(route.query.expires ?? ''),
+      email,
+    })
+    verified.value = true
   } catch (error) {
-    toast.error(error.response.data.message)
+    const message = isAxiosError(error) ? error.response?.data?.message : undefined
+    toast.error(message || 'This sign up link is invalid or has expired.')
     router.replace({ name: 'login' })
   }
 }
@@ -108,18 +113,19 @@ verifyOnLoad()
 
 const onSubmit = handleSubmit(async (payload) => {
   try {
-    await accountSetup({...payload, email: route.query.email, token: route.query.token})
+    await appStore.accountSetup({ ...payload, mobile: payload.mobile || null, email })
     toast.success('Account created successfully')
 
-    if (route.query.redirect) {
-      router.replace(route.query.redirect as string)
-    } else {
-      router.replace({ name: 'dashboard' })
-    }
+    // The user is now logged in; the router middleware takes care of any remaining setup steps.
+    router.replace((route.query.redirect as string) || { name: 'dashboard' })
   } catch (error) {
     if (isAxiosError(error) && error.response?.data?.errors) {
       setErrors(error.response.data.errors)
-      if (error.response.status === 429) return // No need to throw for rate limit errors
+      return
+    }
+    if (isAxiosError(error) && error.response?.data?.message) {
+      toast.error(error.response.data.message)
+      return
     }
     throw error
   }

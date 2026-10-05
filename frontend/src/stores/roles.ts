@@ -1,88 +1,45 @@
 import { defineStore } from 'pinia'
 import { http } from '@/utils/http'
-import { PureAbility } from '@casl/ability'
 import type { RoleResource } from '@/types/role'
-import { ref, computed } from 'vue'
 
+/**
+ * Roles are read-only in the API (defined in code and synced with `php artisan abilities:refresh`)
+ * and the list isn't paginated.
+ */
 export const useRoleStore = defineStore('role', {
   state: () => ({
     roles: [] as RoleResource[],
-    role: {} as RoleResource | null,
-    currentPage: ref<number>(1),
-    totalPages: ref<number>(null),
-    perPage: ref<number>(null),
-    lastPage: ref<number>(null),
-    isLoading: ref<boolean>(false),
-    hasMore: ref<boolean>(true),
-    meta: {}
+    role: null as RoleResource | null,
+    isLoading: false,
   }),
 
   actions: {
-    async fetchRoles({ currentPage } = this.currentPage) {
-      // Prevent unnecessary API calls
-      if (this.isLoading || !this.hasMore) return
-    
+    async fetchRoles() {
+      if (this.isLoading) return
+
       try {
         this.isLoading = true
-    
-        const { data } = await http.get('roles')
-    
-        // Append new roles instead of replacing
-        this.roles.push(...data.data)
-    
-        // Update pagination state
-        this.currentPage = data.current_page + 1
-        this.perPage = data.per_page
-        this.lastPage = data.last_page
-        this.totalPages = Math.ceil(data.total / data.per_page)
-    
-        // Check if more pages are available
-        this.hasMore = this.currentPage <= this.lastPage
+
+        const { data } = await http.get<{ data: RoleResource[] }>('roles')
+        this.roles = data.data
       } catch (error) {
         console.error('Error fetching roles:', error)
       } finally {
         this.isLoading = false
       }
     },
-    async fetchUser(id: [number, string]) {
+
+    async fetchRole(id: number | string) {
       try {
-        const response = await http.get<UserResource>(`roles/${id}`)
+        const response = await http.get<{ data: RoleResource }>(`roles/${id}`)
         this.role = response.data.data
       } catch (error) {
         console.error('Error fetching role:', error)
       }
     },
 
-    async createRole(roleData: Omit<UserResource, 'id'>) {
-      try {
-        const response = await http.post<UserResource>('roles', roleData)
-        this.roles.push(response.data)
-      } catch (error) {
-        console.error('Error creating role:', error)
-      }
-    },
-
-    async updateUser(id: number, roleData: Partial<UserResource>) {
-      const response = await http.put<UserResource>(`roles/${id}`, roleData)
-      this.role = response.data.data
-      this.roles = this.roles.map(role => role.id === id ? response.data : role)
-    },
-
-    async deleteUser(id: number) {
-      try {
-        await http.delete(`roles/${id}`)
-        this.roles = this.roles.filter(role => role.id !== id)
-      } catch (error) {
-        console.error('Error deleting role:', error)
-      }
-    },
-    async disableTwoFactor({ id }: { id?: number } = {}) {
-      const response = await http.put<UserResource>(`roles/${id}/disable-two-factor`)
-
-      return { response, resource: response.data.data }
-    },
-    resetUser() {
-      this.role = {}
+    resetRole() {
+      this.role = null
     },
   },
 })

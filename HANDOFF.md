@@ -12,27 +12,26 @@ plus a Vue 3 + Pinia + Vite SPA (`frontend/`), run with `docker-compose.yml`.
   policies are enforced, sign-up requires a verified email, disabled users can't log in, Socialite
   is safe, rate limits are per user/IP, dead code is removed, and Docker and .env.example work.
 
-### Frontend: about 70% done, NOT yet re-verified
-Done: http client (CSRF, 401/403/419 handling), Pinia app store, types, router guards and
-middleware (including the 2FA login challenge), lazy routes, 2FA verify and setup screens, the
-email verification pages, the accept-terms page, and the login page with social buttons.
+### Frontend: DONE and verified
+- `cd frontend && npm run typecheck` and `npm run build` both pass with 0 errors (the build still
+  prints Sass deprecation and font-path warnings from the template's CSS).
+- Account setup after verification validates the signed link on load, creates the account (the API
+  logs the user in) and routes to `redirect` or the dashboard.
+- Users, roles and blogs stores use the API resource types; pagination is read from `meta`.
+  Roles are read-only and unpaginated, matching the API.
+- Account page: details, password and 2FA panels each send only their own fields; changing the 2FA
+  method calls `PUT /two-factor` and routes to `two-factor.setup.<method>?change=1` for verification.
+- `vuex`, `vuex-pathify`, `store`, `sweetalert` and `@types/axios` are removed. `sweetalert2` is now
+  a direct dependency, pinned to 11.4.4 to match (and dedupe with) `vue-sweetalert2`.
+- `phpunit.xml` now sets a test `APP_KEY`, `APP_URL` and `SANCTUM_STATEFUL_DOMAINS`, so the API
+  suite passes without an `api/.env` (it failed 9 tests on a clean checkout before).
 
-Remaining TODO:
-1. `src/views/register/AccountSetupAfterVerification.vue`: rewrite the script. `appStore.accountSetup()`
-   now logs the user in and returns them; route to `redirect` or `dashboard` afterwards. Remove the
-   unused `token` field. Use `appStore.verifySignature()` on load.
-2. `src/components/HTBPhoneInput.vue`: remove the dead `onInput`/`emit` code (`emit` is undefined).
-3. Run `npm run typecheck` and fix the remaining errors (roughly 100, mostly `stores/users.ts`,
-   `stores/roles.ts`, `views/account/Account.vue`, `views/users/*`, `components/forms/tiptap/*`).
-   Use the types in `src/types/user.ts` and `src/types/role.ts`; they match the API resources.
-   - `Account.vue` should call `PUT /two-factor` via `appStore.updateTwoFactor`, then route to
-     `two-factor.setup.<method>` with `query: { change: '1' }`.
-   - `stores/users.ts` imports `@/types/users`, which should be `@/types/user`; pagination is under
-     `response.data.meta`.
-4. `package.json`: remove the unused `vuex`, `vuex-pathify`, `store`, `sweetalert` and `@types/axios`;
-   add `sweetalert2` explicitly (it's imported directly).
-5. `npm run build` and `npm run typecheck` must both pass with 0 errors.
-6. Write the README "Getting started" section (see below).
+### Known leftovers (not wired up)
+- `components/forms/tiptap/Menu/MenuBar.vue` and `Interactive/*` are commented out of
+  `TiptapEditor.vue`. They are written for Quasar (`q-btn`, `q-dialog`) and import a missing
+  `ImageDialog/ImageDialog.vue`, so they only typecheck; re-enabling them needs that work first.
+
+See README.md for setup.
 
 ## Getting started (dev)
 ```

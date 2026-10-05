@@ -69,8 +69,7 @@ const { handleSubmit, resetForm, setErrors } = useForm({
     password_confirmation: null
   }
 })
-const { value: password, errorMessage: passwordError } = useField('password')
-const { value: password_confirmation, errorMessage: confirmPasswordError } = useField('password_confirmation')
+const { value: password } = useField<string>('password')
 
 const { accountSetup, verifySignature } = useAppStore()
 const { resetPassword } = useAppStore()

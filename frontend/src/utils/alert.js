@@ -1,24 +1,24 @@
-import swal from 'sweetalert'
-import { merge } from 'lodash'
+import Swal from 'sweetalert2'
 
-export default (options = {}) => {
-  return swal(merge({
-    icon: false,
-    buttons: {
-      cancel: {
-        text: 'Cancel',
-        value: false,
-        visible: false,
-        className: 'btn btn-outline-dark',
-        closeModal: true
-      },
-      confirm: {
-        text: 'Yes',
-        value: true,
-        visible: true,
-        className: 'btn btn-danger',
-        closeModal: true
-      }
-    }
-  }, options))
+/**
+ * Confirmation dialog. Resolves to true when confirmed, false otherwise.
+ *
+ * @param {import('sweetalert2').SweetAlertOptions} options
+ * @returns {Promise<boolean>}
+ */
+export default async (options = {}) => {
+  const result = await Swal.fire({
+    showCancelButton: true,
+    confirmButtonText: 'Yes',
+    cancelButtonText: 'Cancel',
+    buttonsStyling: false,
+    ...options,
+    customClass: {
+      confirmButton: 'btn btn-danger',
+      cancelButton: 'btn btn-outline-dark',
+      ...options.customClass,
+    },
+  })
+
+  return result.isConfirmed
 }

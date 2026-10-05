@@ -18,9 +18,9 @@
 import { NodeViewWrapper, NodeViewContent, nodeViewProps} from '@tiptap/vue-3'
 import { Editor } from '@tiptap/vue-3';
 import * as InjectionKeys from '../Types/injection-keys'
-import { defineComponent, onMounted, inject, Ref, ref } from 'vue'
+import { defineComponent, onMounted, inject, ref, type Ref } from 'vue'
 import imageDialog from '../ImageDialog/ImageDialog.vue'
-import {ImageAttributes, iImageAttributes} from '../Types/image-attributes'
+import { ImageAttributes, type iImageAttributes } from '../Types/image-attributes'
 export default defineComponent({
   components: {
     NodeViewWrapper,
@@ -94,7 +94,7 @@ export default defineComponent({
     const imageSelector = ref(false)
     let startX:number, startY:number, startWidth:number, startHeight:number, heightRatio:number, isShift = false
 
-    const updateImage = (e) => {
+    const updateImage = (e: Record<string, string>) => {
       // console.log('CHANGED EVENT LINE 86!!!!!!!!!!!!!!!!!!!!!!!!!')
       // console.log(e)
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -442,8 +442,8 @@ export default defineComponent({
       // console.log(outObj)
       outObj.mode = 'edit'
       if (iDialog.value){
-        for (let k in outObj) {
-          outAttributes.value[k] = (outObj[k] as string).replace('medium', '').replace('initial', '').replace('currentcolor', '')
+        for (const k of Object.keys(outObj) as (keyof iImageAttributes)[]) {
+          outAttributes.value[k] = outObj[k].replace('medium', '').replace('initial', '').replace('currentcolor', '')
         }
         // console.log('LINE343================================')
         // console.log(outAttributes)

@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, type Ref } from 'vue'
 
 export function useInfiniteScroll({
   loadFn,
@@ -20,7 +20,7 @@ export function useInfiniteScroll({
   let contentElement: HTMLElement | null = null
 
   const loadMore = async () => {
-    if (!hasMore || isLoading.value) return
+    if (!hasMore.value || isLoading.value) return
     isLoading.value = true
     await loadFn()
     isLoading.value = false
@@ -33,7 +33,7 @@ export function useInfiniteScroll({
 
   const ensureScrollFills = () => {
     nextTick(() => {
-      if (!scrollContainer || !contentElement || !hasMore || isLoading.value) return
+      if (!scrollContainer || !contentElement || !hasMore.value || isLoading.value) return
 
       const contentIsShort =
         contentElement.scrollHeight <= scrollContainer.clientHeight
@@ -45,7 +45,7 @@ export function useInfiniteScroll({
   }
 
   const handleScroll = () => {
-    if (!scrollContainer || isLoading.value || !hasMore) return
+    if (!scrollContainer || isLoading.value || !hasMore.value) return
 
     const nearBottom =
       scrollContainer.scrollTop + scrollContainer.clientHeight >=

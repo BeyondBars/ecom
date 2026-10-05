@@ -4,4 +4,4 @@ interface SelectItem {
     icon: string;
   }
 
-  export default SelectItem
+  export type { SelectItem as default }

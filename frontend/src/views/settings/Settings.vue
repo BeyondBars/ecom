@@ -41,18 +41,12 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, nextTick, ref } from 'vue'
+import { onMounted } from 'vue'
 import { useRoleStore } from '@/stores/roles'
 
 const rolesStore = useRoleStore()
-const { fetchRoles } = rolesStore
-const roles = ref([])
 
-// Load more users when scrolling
-const loadRoles = async () => {
-  await fetchRoles({ currentPage: rolesStore.currentPage++ })
-}
 onMounted(() => {
-  loadRoles()
+  rolesStore.fetchRoles()
 })
 </script>

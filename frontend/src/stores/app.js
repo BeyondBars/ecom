@@ -22,6 +22,7 @@ export const useAppStore = defineStore('app', {
       this.csrf = true
     },
 
+    /** @returns {Promise<import('@/types/user').UserResource>} */
     async login(payload) {
       const response = await http.post('auth', payload)
       this.user = response.data.data
@@ -39,6 +40,7 @@ export const useAppStore = defineStore('app', {
       }
     },
 
+    /** @returns {Promise<import('@/types/user').UserResource>} */
     async getUser() {
       this.authenticationAttempted = true
       const response = await http.get('user', { userPreflight: true })
@@ -55,6 +57,7 @@ export const useAppStore = defineStore('app', {
       return http.get('verify', { params: { expires, email, signature } })
     },
 
+    /** @returns {Promise<import('@/types/user').UserResource>} */
     async accountSetup(payload) {
       await http.post('account-setup', payload)
       // The API logs the new user straight in.
@@ -88,12 +91,14 @@ export const useAppStore = defineStore('app', {
       return method === 'sms' ? this.smsTwoFactorCode() : this.emailTwoFactorCode()
     },
 
+    /** @returns {Promise<import('@/types/user').UserResource>} */
     async twoFactorVerify(payload) {
       const response = await http.post('two-factor/verify', payload)
       this.user = response.data.data
       return this.user
     },
 
+    /** @returns {Promise<import('@/types/user').UserResource>} */
     async updateTwoFactor(payload) {
       const response = await http.put('two-factor', payload)
       this.user = response.data.data

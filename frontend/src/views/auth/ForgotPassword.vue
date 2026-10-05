@@ -51,7 +51,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useForm, useField } from 'vee-validate'
-import { useAppStore, type ForgotPasswordForm } from '@/stores/app'
+import { useAppStore } from '@/stores/app'
 import HTBFormField from '@/components/HTBFormField.vue'
 import { useFocus } from '@vueuse/core'
 import { isAxiosError } from 'axios'

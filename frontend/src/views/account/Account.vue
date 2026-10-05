@@ -155,147 +155,155 @@
   </div>
 </template>
 <script setup lang="ts">
-import { useUserStore } from '@/stores/users'
-import { useLoggedInUser } from '@/composables/use-logged-in-user'
-import { useAppStore } from '@/stores/app'
+import { ref, onMounted } from 'vue'
 import { isAxiosError } from 'axios'
 import { useForm, useField } from 'vee-validate'
-import { watch, ref, onMounted, watchEffect } from 'vue'
 import * as yup from 'yup'
-import HTBFormField from '@/components/HTBFormField.vue'
-import { storeToRefs } from 'pinia'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
+import { useUserStore } from '@/stores/users'
+import { useAppStore } from '@/stores/app'
+import { useLoggedInUser } from '@/composables/use-logged-in-user'
 import { http } from '@/utils/http'
+import type { TwoFactorMethod } from '@/types/user'
+import HTBFormField from '@/components/HTBFormField.vue'
 import HTBPhoneInput from '@/components/HTBPhoneInput.vue'
 
+type AccountForm = {
+  first_name: string
+  last_name: string
+  email: string
+  mobile: string
+  current_password: string
+  password: string
+  repeat_password: string
+  two_factor_required: boolean
+  two_factor_method_preferred: TwoFactorMethod
+}
+
 const usersStore = useUserStore()
-const { fetchUser, updateUser } = usersStore
-const activeTab = ref(1)
-const { loggedInUser, getLoggedInUser } = useLoggedInUser()
-const { updateTwoFactor } = useAppStore()
+const appStore = useAppStore()
+const { loggedInUser } = useLoggedInUser()
 const router = useRouter()
-const route = useRoute()
 const toast = useToast()
+const activeTab = ref(1)
 
-// Define validation schema
-const schema = yup.object({
-  first_name: yup.string(),
-  last_name: yup.string(),
-  email: yup.string(),
-  two_factor_enabled: yup.boolean(),
-  two_factor_method_preferred: yup.string(),
-  two_factor_required: yup.boolean()
-})
-
-const { handleSubmit, setErrors, resetForm, setFieldValue } = useForm({
-  validationSchema: schema,
+// One form backs all three panels (the HTB inputs bind to the nearest form); each submit handler
+// only sends the fields of its own panel.
+const { handleSubmit, setErrors, setFieldValue } = useForm<AccountForm>({
+  validationSchema: yup.object({
+    first_name: yup.string(),
+    last_name: yup.string(),
+    email: yup.string(),
+    mobile: yup.string().nullable(),
+    current_password: yup.string(),
+    password: yup.string(),
+    repeat_password: yup.string(),
+    two_factor_required: yup.boolean(),
+    two_factor_method_preferred: yup.string(),
+  }),
   initialValues: {
-    email: usersStore.user?.email, // Set initial email value
-    mobile: usersStore.user?.mobile // Checkbox default to unchecked
-  }
+    first_name: loggedInUser.value.first_name ?? '',
+    last_name: loggedInUser.value.last_name ?? '',
+    email: loggedInUser.value.email,
+    mobile: loggedInUser.value.mobile ?? '',
+    current_password: '',
+    password: '',
+    repeat_password: '',
+    two_factor_required: loggedInUser.value.two_factor_required ?? false,
+    two_factor_method_preferred: loggedInUser.value.two_factor_method_preferred ?? 'email',
+  },
 })
 
-const { value: first_name, errorMessage: firstNameError } = useField('first_name')
-const { value: last_name, errorMessage: lastNameError } = useField('last_name')
-const { value: email, errorMessage: emailError } = useField('email')
-const { value: mobile, errorMessage: mobileError } = useField('mobile')
-const { value: two_factor_required, errorMessage: twoFactorRequiredError } = useField('two_factor_required')
-const { value: two_factor_enabled, errorMessage: twoFactorEnabledError } = useField('two_factor_enabled')
-const { value: two_factor_method_preferred, errorMessage: twoFactorMethodPreferredError } = useField('two_factor_method_preferred')
+const { value: first_name } = useField<string>('first_name')
+const { value: last_name } = useField<string>('last_name')
+const { value: email } = useField<string>('email')
+const { value: two_factor_required } = useField<boolean>('two_factor_required')
+const { value: two_factor_method_preferred } = useField<TwoFactorMethod>('two_factor_method_preferred')
 
 const loadUser = async () => {
-  await fetchUser(loggedInUser.value.id)
+  await usersStore.fetchUser(loggedInUser.value.id)
   const user = usersStore.user
 
   // Ensure user data is available before setting values
   if (user) {
-    setFieldValue("first_name", user.first_name)
-    setFieldValue("last_name", user.last_name)
-    setFieldValue("email", user.email)
-    setFieldValue("mobile", user.mobile)
-    setFieldValue("two_factor_required", user.two_factor_required)
-    setFieldValue("two_factor_enabled", user.two_factor_enabled)
-    setFieldValue("two_factor_method_preferred", user.two_factor_method_preferred || 'email')
+    setFieldValue('first_name', user.first_name ?? '')
+    setFieldValue('last_name', user.last_name ?? '')
+    setFieldValue('email', user.email)
+    setFieldValue('mobile', user.mobile ?? '')
+    setFieldValue('two_factor_required', user.two_factor_required ?? false)
+    setFieldValue('two_factor_method_preferred', user.two_factor_method_preferred ?? 'email')
   }
 }
 
-// Fetch user on component mount
 onMounted(loadUser)
+
+const handleError = (error: unknown) => {
+  if (isAxiosError(error) && error.response?.data?.errors) {
+    setErrors(error.response.data.errors)
+    return
+  }
+
+  throw error
+}
 
 const onSubmit = handleSubmit(async (payload) => {
   try {
-    await updateUser(usersStore.user.id, payload)
+    await usersStore.updateUser(loggedInUser.value.id, {
+      first_name: payload.first_name,
+      last_name: payload.last_name,
+      mobile: payload.mobile || null,
+    })
+    // Keep the session user (header, sidebar, guards) in sync.
+    await appStore.getUser()
     toast.success('Account details updated successfully!')
   } catch (error) {
-    if (isAxiosError(error) && error.response?.data?.errors) {
-      setErrors(error.response.data.errors)
-
-      if (error.response.status === 429) return // No need to throw for rate limit errors
-    }
-
-    throw error
+    handleError(error)
   }
 })
 
 const onPasswordSubmit = handleSubmit(async (payload) => {
   try {
-    await http.put(`/users/${usersStore.user.id}/password`, {
+    await http.put(`users/${loggedInUser.value.id}/password`, {
       current_password: payload.current_password,
       password: payload.password,
-      password_confirmation: payload.repeat_password
+      password_confirmation: payload.repeat_password,
     })
 
     toast.success('Password updated successfully.')
-    resetForm()
+    setFieldValue('current_password', '')
+    setFieldValue('password', '')
+    setFieldValue('repeat_password', '')
   } catch (error) {
-    if (isAxiosError(error) && error.response?.data?.errors) {
-      setErrors(error.response.data.errors)
-
-      if (error.response.status === 429) return // No need to throw for rate limit errors
-    }
-
-    throw error
+    handleError(error)
   }
 })
-
-
-
 
 const onAuthSubmit = handleSubmit(async (payload) => {
   try {
-    await updateTwoFactor({
+    const user = await appStore.updateTwoFactor({
       two_factor_required: payload.two_factor_required,
-      two_factor_method_preferred: payload.two_factor_method_preferred
+      two_factor_method_preferred: payload.two_factor_required ? payload.two_factor_method_preferred : null,
     })
-    await getLoggedInUser()
-    if (payload.two_factor_required) {
-      if (payload.two_factor_method_preferred === 'sms') {
-        router.replace({ name: 'two-factor.setup.sms' })
-      } else if (payload.two_factor_method_preferred === 'email') {
-        router.replace({ name: 'two-factor.setup.email' })
-      }
+
+    // A newly chosen method only becomes enabled once a code sent with it has been verified.
+    if (user.two_factor_required && user.two_factor_method_preferred !== user.two_factor_method_enabled) {
+      router.replace({ name: `two-factor.setup.${user.two_factor_method_preferred}`, query: { change: '1' } })
+      return
     }
 
     toast.success('Two factor updated successfully.')
-    resetForm()
   } catch (error) {
-    if (isAxiosError(error) && error.response?.data?.errors) {
-      setErrors(error.response.data.errors)
-
-      if (error.response.status === 429) return // No need to throw for rate limit errors
-    }
-
-    throw error
+    handleError(error)
   }
 })
 
-const setActive = (tab) => {
+const setActive = (tab: number) => {
   activeTab.value = tab
 }
-const options = [
-  { value: 'sms', label: 'SMS' },
-  { value: 'email', label: 'Email' }
-]
 
+const options: { value: TwoFactorMethod; label: string }[] = [
+  { value: 'sms', label: 'SMS' },
+  { value: 'email', label: 'Email' },
+]
 </script>

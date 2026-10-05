@@ -72,7 +72,7 @@
             dense
             options-selected-class="selected-item-color"
             class="font-family-select"
-            @update:model-value = "v => changeFontFamily(v.value)"
+            @update:model-value = "(v: SelectItem) => changeFontFamily(v.value)"
         >
             <template v-slot:option="scope">
             <q-item v-bind="scope.itemProps">
@@ -93,7 +93,7 @@
             dense
             options-selected-class="selected-item-color"
             class="font-family-select"
-            @update:model-value = "v => changeFontSize(v.value)"
+            @update:model-value = "(v: SelectItem) => changeFontSize(v.value)"
         >
             <template v-slot:option="scope">
             <q-item v-bind="scope.itemProps">
@@ -114,7 +114,7 @@
             dense
             options-selected-class="selected-item-color"
             class="font-family-select"
-            @update:model-value = "v => changeBlockType(v.value)"
+            @update:model-value = "(v: SelectItem) => changeBlockType(v.value)"
         >
             <template v-slot:option="scope">
             <q-item v-bind="scope.itemProps">
@@ -320,9 +320,10 @@
 
 <script lang="ts">
 import { Editor } from '@tiptap/vue-3';
-import { defineComponent, inject, Ref, ref } from 'vue';
+import { defineComponent, inject, ref, type Ref } from 'vue';
+import type {} from '@tiptap/extension-highlight'
 import * as InjectionKeys from '../Types/injection-keys'
-import SelectItem from '../Types/select-item'
+import type SelectItem from '../Types/select-item'
 import imageDialog from '../ImageDialog/ImageDialog.vue'
 export default defineComponent({
   components: {
@@ -379,7 +380,7 @@ export default defineComponent({
         // }
     }
 
-    function checkMark(inMark) {
+    function checkMark(inMark: string) {
         if (editor.value.getAttributes(inMark).fontSize) {
             return true
         } else {
@@ -408,13 +409,14 @@ export default defineComponent({
         // console.log(e)
     }
     const changeFontFamily = (value: string) => {
-        editor.value.chain().focus().setFontFamily(value).run()
+        // Same as setFontFamily() from @tiptap/extension-font-family (not installed).
+        editor.value.chain().focus().setMark('textStyle', { fontFamily: value }).run()
     }
 
-    const changeFontSize = (value) => {
+    const changeFontSize = (value: string) => {
         editor.value.chain().focus().setFontSize(value).run()
     }
-    const changeBlockType = (value) => {
+    const changeBlockType = (value: string) => {
         switch(value) {
             case 'paragraph':
                 editor.value.chain().focus().setParagraph().run()
@@ -466,7 +468,7 @@ export default defineComponent({
         editor.value.chain().focus().setFontBackgroundColor(fontHighlight.value).run()
     }
 
-    const toggleTextAlignment = (value) => {
+    const toggleTextAlignment = (value: string) => {
         if (value === 'left') {
             if (editor.value.isActive({ textAlign: 'left' })) {
                 editor.value.chain().focus().unsetTextAlign().run()

@@ -10,7 +10,7 @@
           </div>
           <div class="card-body px-0">
             <div class="table-responsive p-0 scrolling-component" id="scrolling-component">
-              <table class="table align-items-center mb-0" @load="loadMore">
+              <table class="table align-items-center mb-0">
                 <thead>
                   <tr>
                     <th>Name</th>
@@ -56,7 +56,6 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const isLoading = ref(false)
 const usersStore = useUserStore()
-const { fetchUsers } = usersStore
 let scrollContainer: HTMLElement | null = null
 let contentEl: HTMLElement | null = null
 
@@ -66,7 +65,7 @@ const go = (id: number) => {
 const loadUsers = async () => {
   if (isLoading.value || !usersStore.hasMore) return
   isLoading.value = true
-  await usersStore.fetchUsers({ currentPage: usersStore.currentPage++ })
+  await usersStore.fetchUsers()
   isLoading.value = false
 }
 
@@ -101,6 +100,9 @@ const handleScroll = () => {
 }
 
 onMounted(() => {
+  // Start from the first page each time the list is opened.
+  usersStore.resetUsers()
+
   scrollContainer = document.querySelector('#page-content-wrapper')
   contentEl = document.querySelector('#scrolling-component')
 

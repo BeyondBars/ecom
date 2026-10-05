@@ -3,4 +3,4 @@ interface ImageItem {
     thumbnailUrl: string;
   }
 
-  export default ImageItem
+  export type { ImageItem as default }

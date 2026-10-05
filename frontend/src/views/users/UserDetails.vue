@@ -40,7 +40,7 @@
 import HTBFormField from '@/components/HTBFormField.vue'
 import HTBPhoneInput from '@/components/HTBPhoneInput.vue'
 
-import { ref, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useToast } from 'vue-toast-notification'
 import { isAxiosError } from 'axios'
@@ -57,9 +57,6 @@ const route = useRoute()
 const usersStore = useUserStore()
 const { fetchUser, updateUser, resetUser } = usersStore
 
-// Loading state
-const isLoading = ref(false)
-
 // Yup validation schema
 const schema = yup.object({
   first_name: yup.string(),
@@ -69,32 +66,31 @@ const schema = yup.object({
 })
 
 // Setup vee-validate form
-const { handleSubmit, setErrors, resetForm, setFieldValue } = useForm({
+const { handleSubmit, setErrors, setFieldValue } = useForm({
   validationSchema: schema,
   initialValues: {
-    first_name: usersStore.user?.first_name,
-    last_name: usersStore.user?.last_name,
-    email: usersStore.user?.email,
-    mobile: usersStore.user?.mobile
+    first_name: usersStore.user?.first_name ?? '',
+    last_name: usersStore.user?.last_name ?? '',
+    email: usersStore.user?.email ?? '',
+    mobile: usersStore.user?.mobile ?? ''
   }
 })
 
-// Bind form fields
-const { value: first_name, errorMessage: firstNameError } = useField('first_name')
-const { value: last_name, errorMessage: lastNameError } = useField('last_name')
-const { value: email, errorMessage: emailError } = useField('email')
-const { value: mobile, errorMessage: mobileError } = useField('mobile')
+// Bind form fields (the others are bound by HTBFormField / HTBPhoneInput)
+const { value: email } = useField<string>('email')
+
+const userId = computed(() => String(route.params.id))
 
 // Load user details from store
 const loadUser = async () => {
-  await fetchUser(route.params.id)
+  await fetchUser(userId.value)
   const user = usersStore.user
 
   if (user) {
-    setFieldValue('first_name', user.first_name)
-    setFieldValue('last_name', user.last_name)
+    setFieldValue('first_name', user.first_name ?? '')
+    setFieldValue('last_name', user.last_name ?? '')
     setFieldValue('email', user.email)
-    setFieldValue('mobile', user.mobile)
+    setFieldValue('mobile', user.mobile ?? '')
   }
 }
 
@@ -109,7 +105,12 @@ onUnmounted(() => {
 // Form submit handler
 const onSubmit = handleSubmit(async (payload) => {
   try {
-    await updateUser(route.params.id, payload)
+    // The email can't be changed here (the field is read-only).
+    await updateUser(userId.value, {
+      first_name: payload.first_name,
+      last_name: payload.last_name,
+      mobile: payload.mobile || null
+    })
     toast.success('Account details updated successfully!')
   } catch (error) {
     if (isAxiosError(error) && error.response?.data?.errors) {

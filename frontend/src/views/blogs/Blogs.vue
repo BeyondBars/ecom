@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, toRef } from 'vue'
 import { useBlogStore } from '@/stores/blogs'
 import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
 import { formatDate } from '@/utils/date'
@@ -76,7 +76,7 @@ const blogsStore = useBlogStore()
 const toast = useToast()
 const searchQuery = ref('')
 const statusFilter = ref('')
-let searchTimeout: NodeJS.Timeout
+let searchTimeout: ReturnType<typeof setTimeout> | undefined
 
 // Load blogs
 const loadBlogs = async () => {
@@ -127,13 +127,15 @@ const getStatusBadgeClass = (status: string) => {
 // Hook into infinite scroll
 const { isLoading } = useInfiniteScroll({
   loadFn: loadBlogs,
-  hasMore: blogsStore.hasMore,
+  hasMore: toRef(blogsStore, 'hasMore'),
   scrollTargetSelector: '#page-content-wrapper',
   contentSelector: '#scrolling-component-1',
   offset: 100
 })
 
 onMounted(() => {
+  // Start from the first page each time the list is opened.
+  blogsStore.currentPage = 1
   loadBlogs()
 })
 </script>

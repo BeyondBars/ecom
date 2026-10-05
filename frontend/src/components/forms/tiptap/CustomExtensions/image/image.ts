@@ -83,12 +83,14 @@ export const Image = Node.create<ImageOptions>({
 
   addInputRules() {
     return [
-      nodeInputRule(inputRegex, this.type, match => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const [, alt, src, title, style] = match
+      nodeInputRule({
+        find: inputRegex,
+        type: this.type,
+        getAttributes: (match) => {
+          const [, alt, src, title, style] = match
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        return { src, alt, title, style }
+          return { src, alt, title, style }
+        },
       }),
     ]
   },

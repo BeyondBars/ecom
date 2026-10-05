@@ -482,7 +482,7 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
-const auth = (platform) => {
+const auth = (platform: string) => {
   window.open(`${import.meta.env.VITE_API_URL}/auth/${platform}`, '_blank');
 }
 const method = defineModel({ default: 'otp' })

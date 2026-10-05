@@ -1,7 +1,7 @@
-import { InjectionKey, Ref } from 'vue'
-import { Editor } from '@tiptap/vue-3'
-import imageItem from './image-item'
-import SelectItem from './select-item'
+import type { InjectionKey, Ref } from 'vue'
+import type { Editor } from '@tiptap/vue-3'
+import type imageItem from './image-item'
+import type SelectItem from './select-item'
 
 export const editorKey: InjectionKey<Ref<Editor>> = Symbol()
 export const fontFamilyKey: InjectionKey<Ref<SelectItem>> = Symbol()

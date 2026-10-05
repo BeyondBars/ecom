@@ -1,6 +1,14 @@
 import { defineStore } from 'pinia'
 import { http } from '@/utils/http'
 import type { Blog } from '@/types/blog'
+import type { Paginated } from '@/types/user'
+
+export type BlogFilters = {
+  /** Page to load; page 1 replaces the list, later pages are appended. */
+  page?: number
+  search?: string
+  status?: string
+}
 
 export const useBlogStore = defineStore('blogs', {
   state: () => ({
@@ -16,26 +24,36 @@ export const useBlogStore = defineStore('blogs', {
   }),
 
   actions: {
-    async fetchBlogs({ currentPage } = this.currentPage) {
+    async fetchBlogs(filters: BlogFilters = {}) {
+      const { search, status } = filters
+      const page = filters.page ?? this.currentPage
+      const firstPage = page === 1
+
       // Prevent unnecessary API calls
-      if (this.isLoading || !this.hasMore) return
+      if (this.isLoading || (!firstPage && !this.hasMore)) return
 
       try {
         this.isLoading = true
         this.error = null
-        const { data } = await http.get(`blogs?page=${currentPage || 1}`)
+        const { data } = await http.get<Paginated<Blog>>('blogs', {
+          params: { page, search: search || undefined, status: status || undefined },
+        })
 
-        // Append new blogs instead of replacing
-        this.blogs.push(...data.data)
+        // A first page (new search / filter) replaces the list; later pages are appended.
+        if (firstPage) {
+          this.blogs = data.data
+        } else {
+          this.blogs.push(...data.data)
+        }
 
         // Update pagination state
-        this.currentPage = data.current_page + 1
-        this.perPage = data.per_page
-        this.lastPage = data.last_page
-        this.totalPages = Math.ceil(data.total / data.per_page)
-    
-        // // Check if more pages are available
-        this.hasMore = this.currentPage <= this.lastPage
+        this.currentPage = data.meta.current_page + 1
+        this.perPage = data.meta.per_page
+        this.lastPage = data.meta.last_page
+        this.totalPages = Math.ceil(data.meta.total / data.meta.per_page)
+
+        // Check if more pages are available
+        this.hasMore = data.meta.current_page < data.meta.last_page
       } catch (e) {
         this.error = 'Failed to fetch blogs'
         console.error(e)
@@ -48,9 +66,7 @@ export const useBlogStore = defineStore('blogs', {
       try {
         this.isLoading = true
         this.error = null
-        console.log('Making API request to:', `blogs/${id}`)
         const response = await http.get(`blogs/${id}`)
-        console.log('API response:', response)
         this.currentBlog = response.data.data
         return response.data.data
       } catch (e) {

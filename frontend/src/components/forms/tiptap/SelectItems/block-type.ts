@@ -1,4 +1,4 @@
-import SelectItem from '../Types/select-item'
+import type SelectItem from '../Types/select-item'
 const blockTypes: SelectItem[] = [
     {
     label: 'paragraph',
