@@ -104,4 +104,17 @@ return [
 
     'prefix' => env('CACHE_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_cache_'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Serializable Classes
+    |--------------------------------------------------------------------------
+    |
+    | Classes that may be unserialized from the cache. False allows none, which
+    | protects against deserialization gadget chains if APP_KEY ever leaks.
+    | Bouncer caches abilities as plain arrays, so nothing needs listing here.
+    |
+    */
+
+    'serializable_classes' => false,
+
 ];

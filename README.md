@@ -1,6 +1,6 @@
 # Invoice
 
-Laravel 11 API (`api/`, Sanctum SPA cookie auth, Bouncer roles) plus a Vue 3 + Pinia + Vite SPA
+Laravel 13 API (PHP 8.3+, `api/`, Sanctum SPA cookie auth, Bouncer roles) plus a Vue 3 + Pinia + Vite SPA
 (`frontend/`), run together with `docker-compose.yml`.
 
 ## Getting started
