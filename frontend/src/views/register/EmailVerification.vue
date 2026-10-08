@@ -1,19 +1,12 @@
 <template>
-  <div class="card-body">
-    <h4 class="text-primary font-weight-bolder mt-5 mb-4">Sign Up</h4>
-    <form role="form" class="text-start">
-      <p class="text-muted text-sm">
-        An email has been sent to your email address with instructions for creating an account.
-      </p>
-      <div class="row mt-4 mb-5">
-        <div class="col text-end">
-          <a href="/" class="btn btn-primary">
-            <span class="label">Back to login.</span>
-          </a>
-        </div>
-      </div>
-    </form>
-  </div>  
+  <div>
+    <p class="text-sm text-slate-600">
+      An email has been sent to your email address with instructions for creating an account.
+    </p>
+    <div class="mt-6 flex justify-end">
+      <RouterLink :to="{ name: 'login' }" class="btn btn-primary">Back to sign in</RouterLink>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">

@@ -42,5 +42,7 @@ async function resend() {
 </script>
 
 <template>
-  <button type="button" class="btn btn-primary" :disabled="sending" v-bind="$attrs" @click="resend">Re-send Email</button>
+  <button type="button" class="btn btn-primary" :disabled="sending" v-bind="$attrs" @click="resend">
+    Re-send email
+  </button>
 </template>

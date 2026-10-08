@@ -1,160 +1,91 @@
 <template>
-  <div class="container-fluid px-2 px-md-4">
-    <div class="page-header min-height-300 border-radius-xl mt-4" style="background-image: url('./../../assets/img/unspash-header.png');">
-      <span class="mask  bg-gradient-primary  opacity-6"></span>
-    </div>
-    <div class="card card-body mx-3 mx-md-4 mt-n6">
-      <div class="row gx-4 mb-2">
-        <div class="col-auto">
-          <div class="avatar avatar-xl position-relative">
-            <i class="material-icons opacity-10">account_circle</i>
-          </div>
-        </div>
-        <div class="col-auto my-auto">
-          <div class="h-100">
-            <h5 class="mb-1">
-              {{ loggedInUser.name }}
-            <span class="mb-0 font-weight-normal text-sm text-success">
-              (Last login: {{ $date(loggedInUser.last_login_at, { format: 'DD/MM/YYYY [at] h:mmA' }) }} from {{ loggedInUser.last_login_ip }})
-            </span>
-            </h5>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-12 col-xl-12 my-sm-auto ms-sm-auto me-sm-0 mx-auto mt-3">
-          <div class="nav-wrapper position-relative end-0">
-            <ul class="nav nav-pills nav-fill p-1" role="tablist">
-              <li class="nav-item" @click="setActive(1)">
-                <a :class="`nav-link cursor-pointer mb-0 px-0 py-1 ${activeTab === 1 ? 'active' : ''}`">
-                  <i class="material-icons text-lg text-primary position-relative">home</i>
-                  <span class="ms-1">Account Details</span>
-                </a>
-              </li>
-              <li class="nav-item" @click="setActive(2)">
-                <a :class="`nav-link cursor-pointer mb-0 px-0 py-1 ${activeTab === 2 ? 'active' : ''}`">
-                  <i class="material-icons text-lg text-primary position-relative">fingerprint</i>
-                  <span class="ms-1">Account Security</span>
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div class="col-12 col-xl-12">
-          <div class="card card-plain h-100" v-if="activeTab === 1">
-            <div class="row">
-              <div class="col-12 col-xl-6">
-                <div class="card-body p-3">
-                  <div class="card-header ps-0 p-3">
-                    <h6 class="mb-0">Account Details</h6>
-                  </div>
-                  <form role="form" class="text-start" @submit="onSubmit">
-                    <label class="text-dark text-bolder form-label mb-0">First Name</label>
-                    <div class="input-group input-group-outline mb-3 form-group-outline">
-                      <!-- Bind input fields with vee-validate properties -->
-                      <input
-                        :class="`form-control d-block w-100`"
-                        v-model="first_name"
-                        type="text"
-                      />
-                      <!-- <span class="text-danger text-xs mt-1" v-if="errorMessage">{{ errorMessage }}</span> -->
-                    </div>
-                    <label class="text-dark text-bolder form-label mb-0">Last Name</label>
-                    <div class="input-group input-group-outline mb-3 form-group-outline">
-                      <!-- Bind input fields with vee-validate properties -->
-                      <input
-                        :class="`form-control d-block w-100`"
-                        v-model="last_name"
-                        type="text"
-                      />
-                      <!-- <span class="text-danger text-xs mt-1" v-if="errorMessage">{{ errorMessage }}</span> -->
-                    </div>
+  <PageHeader :title="loggedInUser.name">
+    <template v-if="loggedInUser.last_login_at" #description>
+      Last login {{ $date(loggedInUser.last_login_at, { format: 'DD/MM/YYYY [at] h:mmA' }) }}
+      from {{ loggedInUser.last_login_ip }}
+    </template>
+  </PageHeader>
 
-                    <HTBPhoneInput name="mobile" label="Mobile" type="text" />
-                    <label class="text-dark text-bolder form-label mb-0">Email</label>
-                    <div class="input-group input-group-outline mb-3 form-group-outline">
-                      <!-- Bind input fields with vee-validate properties -->
-                      <input
-                        :class="`form-control d-block w-100`"
-                        v-model="email"
-                        type="email"
-                        :disabled="true"
-                      />
-                      <!-- <span class="text-danger text-xs mt-1" v-if="errorMessage">{{ errorMessage }}</span> -->
-                    </div>
-                    <button type="submit" class="btn btn-primary float-end">
-                      <span class="label">Update Details</span>
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="card card-plain h-100" v-if="activeTab === 2">
-            <div class="row">
-              <div class="col-12 col-xl-6">
-                <div class="card-body p-3">
-                  <div class="card-header ps-0 p-3">
-                    <h6 class="mb-0">Change Password</h6>
-                  </div>
-                  <form role="form" class="text-start" @submit="onPasswordSubmit">
-                    <HTBFormField name="current_password" label="Current Password" type="password" />
-                    <HTBFormField name="password" label="Password" type="password" />
-                    <HTBFormField name="repeat_password" label="Repeat Password" type="password" />
-                    <button type="submit" class="btn btn-primary float-end">
-                      <span class="label">Change Password</span>
-                    </button>
-                  </form>
-                </div>
-              </div>
-              <div class="col-12 col-xl-6">
-                <div class="card-body p-3">
-                  <div class="card-header ps-0 p-3">
-                    <h6 class="mb-0">2-Factor Authentication</h6>
-                  </div>
-                  <form role="form" class="text-start" @submit="onAuthSubmit">
-                    <ul class="list-group">
-                      <li class="list-group-item border-0 px-0">
-                        <div class="form-check form-switch ps-0">
-                          <input class="form-check-input ms-auto" v-model="two_factor_required" name="two_factor_required" type="checkbox" checked />
-                          <label class="form-check-label text-body ms-3 text-truncate w-80 mb-0 fw-bold">Use 2-factor when logging in?</label>
-                        </div>
-                      </li>
-                    </ul>
-                    <div class="flex items-center space-x-6" v-if="two_factor_required">
-                      <label
-                        v-for="option in options"
-                        :key="option.value"
-                        class="flex items-center cursor-pointer me-4"
-                      >
-                        <input
-                          type="radio"
-                          v-model="two_factor_method_preferred"
-                          :value="option.value"
-                          class="hidden peer me-1"
-                        />
-                        <span
-                          class="w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center peer-checked:border-blue-900 peer-checked:bg-blue-900 transition"
-                        >
-                          <span class="w-2.5 h-2.5 bg-white rounded-full peer-checked:block hidden"></span>
-                        </span>
-                        <span class="text-gray-700">{{ option.label }}</span>
-                      </label>
-                    </div>
-                    <button type="submit" class="btn btn-primary float-end">
-                      <span class="label">Update</span>
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
+  <div class="mb-6 flex gap-1 rounded-lg bg-slate-200/60 p-1 sm:inline-flex">
+    <button
+      v-for="tab in tabs"
+      :key="tab.id"
+      type="button"
+      class="flex-1 rounded-md px-4 py-2 text-sm font-medium transition sm:flex-none"
+      :class="activeTab === tab.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
+      @click="setActive(tab.id)"
+    >
+      {{ tab.label }}
+    </button>
+  </div>
+
+  <div v-if="activeTab === 1" class="card max-w-xl p-6">
+    <h2 class="mb-4 text-base font-semibold text-slate-900">Account details</h2>
+    <form novalidate @submit="onSubmit">
+      <div class="grid gap-x-4 sm:grid-cols-2">
+        <div class="mb-4">
+          <label class="form-label" for="first_name">First name</label>
+          <input id="first_name" v-model="first_name" class="form-input" type="text" />
+        </div>
+        <div class="mb-4">
+          <label class="form-label" for="last_name">Last name</label>
+          <input id="last_name" v-model="last_name" class="form-input" type="text" />
         </div>
       </div>
+
+      <HTBPhoneInput name="mobile" label="Mobile" type="text" />
+
+      <div class="mb-4">
+        <label class="form-label" for="email">Email</label>
+        <input id="email" v-model="email" class="form-input" type="email" disabled />
+      </div>
+
+      <div class="flex justify-end">
+        <button type="submit" class="btn btn-primary">Update details</button>
+      </div>
+    </form>
+  </div>
+
+  <div v-if="activeTab === 2" class="grid gap-6 xl:grid-cols-2">
+    <div class="card p-6">
+      <h2 class="mb-4 text-base font-semibold text-slate-900">Change password</h2>
+      <form novalidate @submit="onPasswordSubmit">
+        <HTBFormField name="current_password" label="Current password" type="password" />
+        <HTBFormField name="password" label="New password" type="password" />
+        <HTBFormField name="repeat_password" label="Repeat new password" type="password" />
+        <div class="flex justify-end">
+          <button type="submit" class="btn btn-primary">Change password</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card p-6">
+      <h2 class="mb-4 text-base font-semibold text-slate-900">2-step verification</h2>
+      <form novalidate @submit="onAuthSubmit">
+        <label class="mb-4 flex items-center gap-2 text-sm font-medium text-slate-700">
+          <input v-model="two_factor_required" name="two_factor_required" class="form-check" type="checkbox" />
+          Use 2-step verification when signing in
+        </label>
+
+        <fieldset v-if="two_factor_required" class="mb-4">
+          <legend class="form-label">Send my codes by</legend>
+          <div class="flex gap-6">
+            <label v-for="option in options" :key="option.value" class="flex items-center gap-2 text-sm text-slate-700">
+              <input v-model="two_factor_method_preferred" class="form-check" type="radio" :value="option.value" />
+              {{ option.label }}
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="flex justify-end">
+          <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+      </form>
     </div>
   </div>
 </template>
 <script setup lang="ts">
+import PageHeader from '@/components/app/PageHeader.vue'
 import { ref, onMounted } from 'vue'
 import { isAxiosError } from 'axios'
 import { useForm, useField } from 'vee-validate'
@@ -301,6 +232,11 @@ const onAuthSubmit = handleSubmit(async (payload) => {
 const setActive = (tab: number) => {
   activeTab.value = tab
 }
+
+const tabs = [
+  { id: 1, label: 'Account details' },
+  { id: 2, label: 'Security' },
+]
 
 const options: { value: TwoFactorMethod; label: string }[] = [
   { value: 'sms', label: 'SMS' },

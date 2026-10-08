@@ -18,13 +18,13 @@ function onInput(event: Event) {
 </script>
 
 <template>
-  <label class="text-dark text-bolder form-label mb-0" :for="name">{{ label }}</label>
-  <div class="input-group input-group-outline mb-3">
+  <div class="mb-4">
+    <label class="form-label" :for="name">{{ label }}</label>
     <input
       :id="name"
       :name="name"
       :value="value"
-      class="form-control d-block w-100"
+      class="form-input text-center text-lg tracking-[0.4em]"
       :class="{ 'is-invalid': errorMessage }"
       type="text"
       inputmode="numeric"
@@ -35,6 +35,6 @@ function onInput(event: Event) {
       @input="onInput"
       @blur="handleBlur"
     />
-    <span v-if="errorMessage" class="text-danger text-xs mt-1">{{ errorMessage }}</span>
+    <span v-if="errorMessage" class="form-error">{{ errorMessage }}</span>
   </div>
 </template>

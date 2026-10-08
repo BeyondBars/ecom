@@ -3,7 +3,7 @@
 
 Use the code below to finish signing in. It expires in {{ \App\Models\UserVerificationCode::LIFETIME_MINUTES }} minutes.
 
-@component('mail::code')
+@component('mail::panel')
 {{ $verificationCode->formatted_code }}
 @endcomponent
 

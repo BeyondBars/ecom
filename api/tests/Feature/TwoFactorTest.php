@@ -140,4 +140,15 @@ class TwoFactorTest extends TestCase
 
         $this->assertSame('61412345678', $user->routeNotificationForVonage());
     }
+
+    public function testTheEmailCodeRendersIntoTheMessage()
+    {
+        // Notification::fake() never renders the mail, so render it here to catch template errors.
+        $user = $this->userWithTwoFactor();
+        $code = $user->createVerificationCode('email');
+
+        $html = (string) (new TwoFactorVerificationNotification($code, 'email'))->toMail($user)->render();
+
+        $this->assertStringContainsString($code->formatted_code, $html);
+    }
 }

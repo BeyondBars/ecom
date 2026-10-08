@@ -1,60 +1,37 @@
 <template>
-  <div class="container my-auto">
-    <div class="row">
-      <div class="col-lg-5 col-md-8 col-12 mx-auto">
-        <div class="card z-index-0 fadeIn3 fadeInBottom">
-          <div class="card-body">
-            <img class="logo mt-4" src="@/assets/img/logo/logo.png" alt="Invoice" />
-            <h4 class="text-primary font-weight-bolder mb-4">Sign In</h4>
+  <AuthCard title="Sign in">
+    <form novalidate @submit="onSubmit">
+      <HTBFormField name="email" label="Email address" type="email" />
+      <HTBFormField name="password" label="Password" type="password" />
 
-            <form role="form" class="text-start" novalidate @submit="onSubmit">
-              <HTBFormField name="email" label="Email Address" type="email" />
-              <HTBFormField name="password" label="Password" type="password" />
-
-              <div class="row mt-4 mb-4">
-                <div class="col-auto text-end d-flex align-items-center">
-                  <p class="text-sm">
-                    <RouterLink :to="{ name: 'forgot-password' }" class="text-primary text-gradient font-weight-bold">
-                      Forgot Password?
-                    </RouterLink>
-                  </p>
-                </div>
-                <div class="col text-end">
-                  <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
-                    <span class="label">Next</span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="text-center">
-                <p class="text-sm text-muted mb-2">or sign in with</p>
-                <a :href="`${apiUrl}/auth/google`" class="btn btn-outline-secondary me-2">
-                  <FontAwesomeIcon :icon="['fab', 'google']" /> Google
-                </a>
-                <a :href="`${apiUrl}/auth/facebook`" class="btn btn-outline-secondary">
-                  <FontAwesomeIcon :icon="['fab', 'facebook-f']" /> Facebook
-                </a>
-              </div>
-
-              <div class="row mt-4 mb-4">
-                <div class="col-auto mx-auto d-flex align-items-center mt-3 text-center">
-                  <p class="text-sm text-center">
-                    Don't have an account?
-                    <RouterLink :to="{ name: 'register' }" class="text-primary text-gradient font-weight-bold">
-                      Sign up
-                    </RouterLink>
-                  </p>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
+      <div class="mt-6 flex items-center justify-between gap-4">
+        <RouterLink :to="{ name: 'forgot-password' }" class="link text-sm">Forgot password?</RouterLink>
+        <button type="submit" class="btn btn-primary" :disabled="isSubmitting">Sign in</button>
       </div>
+    </form>
+
+    <div class="my-6 flex items-center gap-3 text-xs text-slate-400">
+      <span class="h-px flex-1 bg-slate-200" />or sign in with<span class="h-px flex-1 bg-slate-200" />
     </div>
-  </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <a :href="`${apiUrl}/auth/google`" class="btn btn-secondary">
+        <FontAwesomeIcon :icon="['fab', 'google']" /> Google
+      </a>
+      <a :href="`${apiUrl}/auth/facebook`" class="btn btn-secondary">
+        <FontAwesomeIcon :icon="['fab', 'facebook-f']" /> Facebook
+      </a>
+    </div>
+
+    <p class="mt-6 text-center text-sm text-slate-600">
+      Don't have an account?
+      <RouterLink :to="{ name: 'register' }" class="link">Sign up</RouterLink>
+    </p>
+  </AuthCard>
 </template>
 
 <script setup lang="ts">
+import AuthCard from '@/components/auth/AuthCard.vue'
 import { isAxiosError } from 'axios'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
@@ -106,12 +83,3 @@ const onSubmit = handleSubmit(async (payload) => {
 })
 </script>
 
-<style>
-@media (min-width: 1024px) {
-  .about {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
-}
-</style>

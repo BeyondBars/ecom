@@ -1,7 +1,40 @@
-# Invoice
+# Laravel + Vue Starter
 
-Laravel 13 API (PHP 8.3+, `api/`, Sanctum SPA cookie auth, Bouncer roles) plus a Vue 3 + Pinia + Vite SPA
-(`frontend/`), run together with `docker-compose.yml`.
+A starter for apps that need a solid sign-in system: Laravel 13 API (PHP 8.4, `api/`, Sanctum SPA cookie
+auth, Bouncer roles) plus a Vue 3 + Pinia + Vite + Tailwind CSS 4 SPA (`frontend/`), run together with
+`docker-compose.yml`.
+
+Included: sign-up with email verification, sign-in, Google/Facebook login, 2-step verification by email or
+SMS, password reset, terms acceptance, user management, roles and an account page. Nothing app-specific.
+
+## Building an app on this starter
+
+Create the app from this repo and keep it linked, so auth fixes made here can be pulled in later:
+
+```sh
+git clone git@github.com:BeyondBars/<this-repo>.git my-app
+cd my-app
+git remote rename origin upstream
+git remote add origin git@github.com:BeyondBars/my-app.git
+git push -u origin main
+```
+
+Pull starter changes when you want them:
+
+```sh
+git fetch upstream
+git merge upstream/main          # everything
+git cherry-pick <commit-hash>    # one specific fix
+```
+
+To keep merges painless:
+
+- Fix auth and shared-shell problems **here**, then pull them into the app. Keep starter commits focused
+  (one fix per commit) so they can be cherry-picked.
+- In the app, extend rather than edit starter files where you can. App-specific user data goes in its own
+  table rather than new columns on `users`; app pages go in new route files under `frontend/src/router/routes/`.
+- Rebrand by changing the `--color-brand-*` values in `frontend/src/assets/css/app.css` and replacing
+  `frontend/src/assets/img/logo/logo.png` and `white-logo.png`. Everything else uses those.
 
 ## Getting started
 
@@ -21,7 +54,7 @@ docker compose exec fpm php artisan migrate --seed
 | SPA                 | http://localhost:8080 |
 | API                 | http://localhost:8000 |
 | Emails (MailDev)    | http://localhost:8025 |
-| MySQL (from host)   | `localhost:33061` (user `invoice`, password `secret`) |
+| MySQL (from host)   | `localhost:33061` (see `DB_*` in `api/.env`) |
 
 Seeded logins (password `Secret*12345` for both):
 

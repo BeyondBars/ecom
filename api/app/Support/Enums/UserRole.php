@@ -7,8 +7,6 @@ enum UserRole: string
     case SuperAdmin = 'super_admin';
     case User = 'user';
     case Staff = 'staff';
-    case Blogger = 'blogger';
-    case Invoicer = 'invoicer';
 
     public function title(): string
     {
@@ -16,8 +14,6 @@ enum UserRole: string
             self::SuperAdmin => 'Super Admin',
             self::User => 'User',
             self::Staff => 'Staff',
-            self::Blogger => 'Blogger',
-            self::Invoicer => 'Invoicer',
         };
     }
 
@@ -27,8 +23,6 @@ enum UserRole: string
             self::SuperAdmin => 'Has full access to all system features, settings, and user management.',
             self::User => 'Standard user with access to general features and personal profile management.',
             self::Staff => 'Internal team member with access to operational tools and limited administrative privileges.',
-            self::Blogger => 'Can write, edit, and publish blog content, and manage their own posts.',
-            self::Invoicer => 'Responsible for generating, sending, and managing invoices and payment records.',
         };
     }
 
@@ -40,7 +34,7 @@ enum UserRole: string
         return match ($this) {
             self::SuperAdmin => UserAbility::forRole($this),
             self::Staff => [UserAbility::ReadUsers->value],
-            self::User, self::Blogger, self::Invoicer => [],
+            self::User => [],
         };
     }
 }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AuthCard from '@/components/auth/AuthCard.vue'
 import { computed, ref } from 'vue'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
@@ -63,47 +64,21 @@ async function resend() {
 </script>
 
 <template>
-  <div class="container my-auto">
-    <div class="row">
-      <div class="col-lg-5 col-md-8 col-12 mx-auto">
-        <div class="card z-index-0 fadeIn3 fadeInBottom">
-          <div class="card-body">
-            <img class="logo mt-4" src="@/assets/img/logo/logo.png" alt="Invoice" />
-            <h4 class="text-primary font-weight-bolder mt-3 mb-4">2-Step Verification</h4>
+  <AuthCard title="2-step verification">
+    <form novalidate @submit="onSubmit">
+      <p class="mb-4 text-sm text-slate-600">Enter the 6-digit code we sent to {{ destination }}.</p>
 
-            <form class="text-start" novalidate @submit="onSubmit">
-              <p class="text-muted text-sm">Enter the 6-digit code we sent to {{ destination }}.</p>
+      <TwoFactorCodeInput />
 
-              <TwoFactorCodeInput />
+      <p class="text-sm text-slate-600">
+        Code hasn't arrived?
+        <button type="button" class="link" :disabled="resending" @click="resend">Resend code</button>
+      </p>
 
-              <p class="text-muted text-sm">
-                Code hasn't arrived?<br />
-                <button
-                  type="button"
-                  class="btn btn-link text-primary text-sm p-0 text-decoration-underline"
-                  :disabled="resending"
-                  @click="resend"
-                >
-                  Resend code
-                </button>
-              </p>
-
-              <div class="row mt-4 mb-4">
-                <div class="col-auto d-flex align-items-center">
-                  <button type="button" class="btn btn-link text-sm text-muted p-0 mb-0" @click="logout">
-                    Sign out
-                  </button>
-                </div>
-                <div class="col text-end">
-                  <button type="submit" class="btn btn-primary mb-0" :disabled="isSubmitting">
-                    Verify code
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
+      <div class="mt-6 flex items-center justify-between gap-4">
+        <button type="button" class="link-muted" @click="logout">Sign out</button>
+        <button type="submit" class="btn btn-primary" :disabled="isSubmitting">Verify code</button>
       </div>
-    </div>
-  </div>
+    </form>
+  </AuthCard>
 </template>

@@ -1,55 +1,42 @@
 <template>
-  <div class="container-fluid py-4">
-    <div class="row">
-      <div class="col-12">
-        <div class="card my-4">
-          <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
-              <h6 class="text-white text-capitalize ps-3">Users</h6>
-            </div>
-          </div>
-          <div class="card-body px-0">
-            <div class="table-responsive p-0 scrolling-component" id="scrolling-component">
-              <table class="table align-items-center mb-0">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Mobile</th>
-                    <th>Status</th>
-                    <th>Last Login</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="user in usersStore.users" :key="user.id" @click="go(user.id)" class="cursor-pointer">
-                    <td>
-                      <p class="mb-0 text-xs">{{ user.name }}</p>
-                    </td>
-                    <td>
-                      <p class="text-xs text-secondary mb-0">{{ user.email }}</p>
-                    </td>
-                    <td>
-                      <p class="text-xs mb-0">{{ user.mobile }}</p>
-                    </td>
-                    <td>
-                      <span class="badge badge-sm bg-gradient-success" v-if="user.status === 'enabled'">Active</span>
-                      <span class="badge badge-sm bg-gradient-warning" v-if="user.status === 'pending'">Pending</span>
-                      <span class="badge badge-sm bg-gradient-danger" v-if="user.status === 'disabled'">Archived</span>
-                    </td>
-                    <td class="align-middle">
-                      <span class="text-secondary text-xs">{{ user.last_login_at || '-'}}</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
+  <PageHeader title="Users" />
+
+  <div id="scrolling-component" class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 text-sm">
+        <thead class="bg-slate-50 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase">
+          <tr>
+            <th class="px-4 py-3">Name</th>
+            <th class="px-4 py-3">Email</th>
+            <th class="px-4 py-3">Mobile</th>
+            <th class="px-4 py-3">Status</th>
+            <th class="px-4 py-3">Last login</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr
+            v-for="user in usersStore.users"
+            :key="user.id"
+            class="cursor-pointer hover:bg-slate-50"
+            @click="go(user.id)"
+          >
+            <td class="px-4 py-3 font-medium text-slate-900">{{ user.name }}</td>
+            <td class="px-4 py-3 text-slate-600">{{ user.email }}</td>
+            <td class="px-4 py-3 text-slate-600">{{ user.mobile }}</td>
+            <td class="px-4 py-3">
+              <span class="rounded-full px-2 py-0.5 text-xs font-semibold" :class="statusBadge[user.status]?.class">
+                {{ statusBadge[user.status]?.label ?? user.status }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-slate-500">{{ user.last_login_at ? $date(user.last_login_at) : '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
+import PageHeader from '@/components/app/PageHeader.vue'
 import { onMounted, onUnmounted, nextTick, ref } from 'vue'
 import { useUserStore } from '@/stores/users'
 import { useRouter } from 'vue-router'
@@ -58,6 +45,12 @@ const isLoading = ref(false)
 const usersStore = useUserStore()
 let scrollContainer: HTMLElement | null = null
 let contentEl: HTMLElement | null = null
+
+const statusBadge: Record<string, { label: string; class: string }> = {
+  enabled: { label: 'Active', class: 'bg-emerald-100 text-emerald-700' },
+  pending: { label: 'Pending', class: 'bg-amber-100 text-amber-700' },
+  disabled: { label: 'Archived', class: 'bg-slate-200 text-slate-600' },
+}
 
 const go = (id: number) => {
   router.push({ name: 'users.details', params: { id } }) // adjust route name & param as needed

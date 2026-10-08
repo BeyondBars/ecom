@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AuthCard from '@/components/auth/AuthCard.vue'
 import { computed, ref } from 'vue'
 import { isAxiosError } from 'axios'
 import { useToast } from 'vue-toast-notification'
@@ -53,46 +54,25 @@ await sendCode(false)
 </script>
 
 <template>
-  <div class="container my-auto">
-    <div class="row">
-      <div class="col-lg-5 col-md-8 col-12 mx-auto">
-        <div class="card card-authentication">
-          <form class="card-body" novalidate @submit="verify">
-            <img class="logo" src="@/assets/img/logo/logo.png" alt="Invoice" />
+  <AuthCard :title="`Set up ${label} 2-step verification`">
+    <form novalidate @submit="verify">
+      <p class="mb-4 text-sm text-slate-600">
+        We've sent a code to {{ destination }}. Enter it below to finish setting up.
+      </p>
 
-            <h4 class="text-primary font-weight-bolder mb-4">Set up {{ label }} 2-Step Verification</h4>
-            <p class="text-sm">We've sent a code to {{ destination }}.</p>
-            <p class="text-sm">Enter it below to finish setting up.</p>
+      <TwoFactorCodeInput />
 
-            <TwoFactorCodeInput />
+      <p class="text-sm text-slate-600">
+        Code hasn't arrived?
+        <button type="button" class="link" :disabled="sending" @click="sendCode()">Resend code</button>
+        &middot;
+        <button type="button" class="link" @click="changeMethod">Use {{ otherMethod }} instead</button>
+      </p>
 
-            <p class="text-muted text-sm">
-              Code hasn't arrived?<br />
-              <button
-                type="button"
-                class="btn btn-link text-primary text-sm p-0 text-decoration-underline"
-                :disabled="sending"
-                @click="sendCode()"
-              >
-                Resend code
-              </button>
-              &middot;
-              <button type="button" class="btn btn-link text-primary text-sm p-0" @click="changeMethod">
-                Use {{ otherMethod }} instead
-              </button>
-            </p>
-
-            <div class="row mt-4">
-              <div class="col-auto d-flex align-items-center">
-                <button type="button" class="btn btn-link text-sm text-muted p-0 mb-0" @click="logout">Sign out</button>
-              </div>
-              <div class="col text-end">
-                <button type="submit" class="btn btn-primary mb-0" :disabled="isSubmitting">Verify</button>
-              </div>
-            </div>
-          </form>
-        </div>
+      <div class="mt-6 flex items-center justify-between gap-4">
+        <button type="button" class="link-muted" @click="logout">Sign out</button>
+        <button type="submit" class="btn btn-primary" :disabled="isSubmitting">Verify</button>
       </div>
-    </div>
-  </div>
+    </form>
+  </AuthCard>
 </template>

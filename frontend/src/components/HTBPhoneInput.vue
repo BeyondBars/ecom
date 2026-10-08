@@ -48,23 +48,21 @@ export default {
 </script>
 
 <template>
-  <!-- Label display -->
-  <label class="text-dark text-bolder form-label mb-0" v-if="label">{{ label }}</label>
-  <div class="input-group input-group-outline mb-3" :class="{ 'form-group-outline': formGroup }">
-    <!-- Bind input fields with vee-validate properties -->
+  <div class="mb-4">
+    <label v-if="label" class="form-label" :for="name">{{ label }}</label>
     <IMaskComponent
-      :class="`form-control d-block w-100 ${className}`"
+      :id="name"
+      ref="maskRef"
+      class="form-input"
+      :class="[{ 'is-invalid': errorMessage }, className]"
       :mask="phoneMask"
       :unmask="true"
-      v-bind="{
-        value,
-        type,
-        class: fieldClasses,
-        placeholder: placeholder
-      }"
+      :value="value"
+      :type="type"
+      :placeholder="placeholder"
       @input="handleChange"
       @blur="handleBlur"
     />
-    <span class="text-danger text-xs mt-1" v-if="errorMessage">{{ errorMessage }}</span>
+    <span v-if="errorMessage" class="form-error">{{ errorMessage }}</span>
   </div>
 </template>

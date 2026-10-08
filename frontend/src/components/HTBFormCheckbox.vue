@@ -35,17 +35,11 @@ export default {
 </script>
 
 <template>
-  <!-- Checkbox Field -->
-  <div class="ps-0 form-check form-check-info text-start">
-    <input 
-      class="form-check-input ms-0" 
-      type="checkbox" 
-      v-model="value"
-      @blur="handleBlur"
-    />
-    <label class="form-check-label">
-      <slot>{{ label }}</slot>
+  <div class="mb-4">
+    <label class="flex items-start gap-2 text-sm text-slate-700">
+      <input v-model="value" class="form-check mt-0.5" type="checkbox" @blur="handleBlur" />
+      <span><slot>{{ label }}</slot></span>
     </label>
-    <span class="text-danger text-xs mt-1 d-block" v-if="errorMessage">{{ errorMessage }}</span>
+    <span v-if="errorMessage" class="form-error">{{ errorMessage }}</span>
   </div>
 </template>

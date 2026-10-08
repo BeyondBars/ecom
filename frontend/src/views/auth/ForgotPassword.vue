@@ -1,54 +1,25 @@
 <template>
-  <div class="container my-auto">
-    <div class="row">
-      <div class="col-lg-5 col-md-8 col-12 mx-auto">
-        <div class="card card-authentication">
-          <form role="form" class="card-body" @submit="onSubmit">
-            <router-link :to="{ name: 'login' }">
-              <img class="logo" src="@/assets/img/logo/logo.png" alt="She Codes" />
-            </router-link>
+  <AuthCard :title="sent ? 'Password reset sent' : 'Forgot password?'">
+    <p v-if="sent" class="text-sm text-slate-600">
+      An email has been sent to <strong>{{ sent }}</strong> with instructions for resetting your password.
+    </p>
 
-            <template v-if="sent">
-              <h4 class="text-primary font-weight-bolder mb-4">Password Reset Sent</h4>
+    <form v-else novalidate @submit="onSubmit">
+      <p class="mb-4 text-sm text-slate-600">
+        Enter your email address and we'll send you a link to reset your password.
+      </p>
+      <HTBFormField name="email" label="Email" type="email" />
 
-              <p class="text-muted text-sm">
-                An email has been sent to <strong>{{ sent }}</strong> with instructions for resetting your
-                password.
-              </p>
-
-              <div class="row">
-                <div class="col-auto text-right d-flex align-items-center">
-                </div>
-              </div>
-            </template>
-
-            <template v-else>
-              <h4 class="text-primary font-weight-bolder mb-4">Forgot Password?</h4>
-
-              <p class="text-muted text-sm">
-                If you have forgotten your password, enter your email address below to get your password
-                reset.
-              </p>
-              <HTBFormField name="email" label="Email" type="email" />
-            </template>
-
-            <div class="row mt-4">
-              <div class="col-auto text-end d-flex align-items-center">
-              </div>
-              <div class="col text-end">
-                <button type="submit" class="btn btn-primary">
-                  <span class="label">Next</span>
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
+      <div class="mt-6 flex items-center justify-between gap-4">
+        <RouterLink :to="{ name: 'login' }" class="link-muted">Back to sign in</RouterLink>
+        <button type="submit" class="btn btn-primary">Send reset link</button>
       </div>
-    </div>
-  </div>
+    </form>
+  </AuthCard>
 </template>
 
 <script lang="ts" setup>
+import AuthCard from '@/components/auth/AuthCard.vue'
 import { ref } from 'vue'
 import { useForm, useField } from 'vee-validate'
 import { useAppStore } from '@/stores/app'

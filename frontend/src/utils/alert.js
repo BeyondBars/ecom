@@ -14,8 +14,8 @@ export default async (options = {}) => {
     buttonsStyling: false,
     ...options,
     customClass: {
-      confirmButton: 'btn btn-danger',
-      cancelButton: 'btn btn-outline-dark',
+      confirmButton: 'btn btn-danger ml-2',
+      cancelButton: 'btn btn-secondary',
       ...options.customClass,
     },
   })

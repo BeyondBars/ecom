@@ -1,49 +1,31 @@
 <template>
-  <div class="container my-auto">
-    <div class="row">
-      <div class="col-lg-5 col-md-8 col-12 mx-auto">
-        <div class="card z-index-0 fadeIn3 fadeInBottom">
-          <div class="card-body">
-            <img class="logo mt-4" src="@/assets/img/logo/logo.png" alt="Invoice" />
-            <h4 class="text-primary font-weight-bolder mb-4">Account Setup</h4>
-            <form role="form" class="text-start" novalidate @submit="onSubmit">
-              <div class="mt-4 mb-4">
-                <HTBFormField name="first_name" label="First Name" type="text" />
-                <HTBFormField name="last_name" label="Last Name" type="text" />
-                <HTBPhoneInput name="mobile" label="Mobile" type="text" />
-                <HTBFormField name="password" label="Password" type="password" />
-                <HTBFormField name="password_confirmation" label="Confirm Password" type="password" />
-                <PasswordStrengthBar class="mb-4" :password="password" label="Password Strength" />
-                <HTBFormCheckbox
-                  name="agree_terms" 
-                  type="checkbox"
-                  className="mt-3 text-danger"
-                >
-                  I agree to the 
-                  <a class="text-decoration-underline" href="#" target="_blank" rel="noopener">privacy policy</a> 
-                  and 
-                  <a class="text-decoration-underline" :href="termsAndConditionsUrl" target="_blank" rel="noopener">terms and conditions</a> of use.
-                </HTBFormCheckbox>
-              </div>
-
-              <div class="row mt-4 mb-5">
-                <div class="col-auto text-end d-flex align-items-center">
-                  <RouterLink :to="{ name: 'login' }" class="mb-2 text-sm mx-auto">Back to login.</RouterLink>
-                </div>
-                <div class="col text-end">
-                  <button type="submit" class="btn btn-primary" :disabled="!verified || isSubmitting">
-                    <span class="label">Create Account</span>
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
+  <AuthCard title="Account setup">
+    <form novalidate @submit="onSubmit">
+      <div class="grid gap-x-4 sm:grid-cols-2">
+        <HTBFormField name="first_name" label="First name" type="text" />
+        <HTBFormField name="last_name" label="Last name" type="text" />
       </div>
-    </div>
-  </div>
+      <HTBPhoneInput name="mobile" label="Mobile" type="text" />
+      <HTBFormField name="password" label="Password" type="password" />
+      <HTBFormField name="password_confirmation" label="Confirm password" type="password" />
+      <PasswordStrengthBar class="mb-4" :password="password" label="Password strength" />
+
+      <HTBFormCheckbox name="agree_terms" type="checkbox">
+        I agree to the
+        <a class="link" href="#" target="_blank" rel="noopener">privacy policy</a>
+        and
+        <a class="link" :href="termsAndConditionsUrl" target="_blank" rel="noopener">terms and conditions</a> of use.
+      </HTBFormCheckbox>
+
+      <div class="mt-6 flex items-center justify-between gap-4">
+        <RouterLink :to="{ name: 'login' }" class="link-muted">Back to sign in</RouterLink>
+        <button type="submit" class="btn btn-primary" :disabled="!verified || isSubmitting">Create account</button>
+      </div>
+    </form>
+  </AuthCard>
 </template>
 <script setup lang="ts">
+import AuthCard from '@/components/auth/AuthCard.vue'
 import { ref } from 'vue'
 import { isAxiosError } from 'axios'
 import { useForm, useField } from 'vee-validate'
@@ -132,12 +114,3 @@ const onSubmit = handleSubmit(async (payload) => {
 })
 </script>
 
-<style>
-@media (min-width: 1024px) {
-  .about {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
-}
-</style>
