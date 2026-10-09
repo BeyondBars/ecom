@@ -24,7 +24,7 @@ class UserController extends Controller
 
         return UserListResource::collection(
             QueryBuilder::for(User::query()->with('role'))
-                ->allowedFilters([
+                ->allowedFilters(
                     AllowedFilter::exact('status'),
                     AllowedFilter::callback('search', function ($query, $value) {
                         $query->where(function ($query) use ($value) {
@@ -33,8 +33,8 @@ class UserController extends Controller
                                 ->orWhere('email', 'like', "%{$value}%");
                         });
                     }),
-                ])
-                ->allowedSorts(['first_name', 'last_name', 'email', 'created_at', 'last_login_at'])
+                )
+                ->allowedSorts('first_name', 'last_name', 'email', 'created_at', 'last_login_at')
                 ->defaultSort('first_name')
                 ->paginate(5)
         );

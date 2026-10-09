@@ -5,27 +5,25 @@
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
-        "php": "^8.2",
-        "codium/laravel-sms-capture": "^1.0",
+        "php": "^8.3",
         "hashids/hashids": "^5.0",
-        "laravel/framework": "^11.9",
-        "laravel/sanctum": "^4.0",
-        "laravel/socialite": "^5.15",
-        "laravel/tinker": "^2.9",
-        "laravel/vonage-notification-channel": "^3.3",
+        "laravel/framework": "^13.0",
+        "laravel/sanctum": "^4.3",
+        "laravel/socialite": "^5.31",
+        "laravel/tinker": "^3.0",
+        "laravel/vonage-notification-channel": "^3.3.5",
         "pusher/pusher-php-server": "^7.2",
-        "silber/bouncer": "^1.0",
-        "spatie/laravel-permission": "^6.9",
-        "spatie/laravel-query-builder": "^6.3",
+        "silber/bouncer": "^1.0.4",
+        "spatie/laravel-query-builder": "^7.0",
         "vonage/client": "^4.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
-        "laravel/pint": "^1.13",
-        "laravel/sail": "^1.26",
+        "laravel/pint": "^1.27",
+        "laravel/sail": "^1.68",
         "mockery/mockery": "^1.6",
-        "nunomaduro/collision": "^8.0",
-        "phpunit/phpunit": "^11.0.1"
+        "nunomaduro/collision": "^8.6",
+        "phpunit/phpunit": "^12.5"
     },
     "autoload": {
         "psr-4": {

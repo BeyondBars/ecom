@@ -1,4 +1,4 @@
-FROM php:8.2-fpm
+FROM php:8.3-fpm
 
 # Keep file permissions the same as the host for the mounted volume.
 RUN useradd -m -u 1000 ubuntu

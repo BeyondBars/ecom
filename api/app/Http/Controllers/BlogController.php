@@ -25,7 +25,7 @@ class BlogController extends Controller
 
         return BlogListResource::collection(
             QueryBuilder::for($query)
-                ->allowedSorts(['title', 'created_at', 'updated_at'])
+                ->allowedSorts('title', 'created_at', 'updated_at')
                 ->defaultSort('-created_at')
                 ->paginate(5)
         );

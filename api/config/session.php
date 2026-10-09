@@ -34,6 +34,19 @@ return [
 
     'lifetime' => env('SESSION_LIFETIME', 120),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Session Serialization
+    |--------------------------------------------------------------------------
+    |
+    | "json" (the Laravel 13 default) never unserializes PHP objects. The session
+    | only holds scalars (auth id, CSRF token, the 2FA flag). Switching from "php"
+    | logs existing sessions out once.
+    |
+    */
+
+    'serialization' => 'json',
+
     'expire_on_close' => env('SESSION_EXPIRE_ON_CLOSE', false),
 
     /*

@@ -16,7 +16,7 @@ class RoleController extends Controller
     {
         return RoleResource::collection(
             QueryBuilder::for(Role::class)
-                ->allowedIncludes(['abilities'])
+                ->allowedIncludes('abilities')
                 ->orderBy('id')
                 ->get()
         );

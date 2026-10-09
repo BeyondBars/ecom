@@ -1,6 +1,6 @@
 # Handoff: fixed clone of beyondBars/invoice
 
-Same architecture as the original: Laravel 11 API (`api/`, Sanctum SPA cookie auth, Bouncer roles)
+Same architecture as the original: Laravel API (upgraded from 11 to 13) (`api/`, Sanctum SPA cookie auth, Bouncer roles)
 plus a Vue 3 + Pinia + Vite SPA (`frontend/`), run with `docker-compose.yml`.
 
 ## Status
@@ -31,6 +31,19 @@ plus a Vue 3 + Pinia + Vite SPA (`frontend/`), run with `docker-compose.yml`.
   `TiptapEditor.vue`. They are written for Quasar (`q-btn`, `q-dialog`) and import a missing
   `ImageDialog/ImageDialog.vue`, so they only typecheck; re-enabling them needs that work first.
 
+### Laravel 13 upgrade: DONE and verified
+- PHP 8.3+ (Dockerfile now `php:8.3-fpm`), `laravel/framework` ^13.0, `laravel/tinker` ^3.0,
+  `phpunit/phpunit` ^12.5, `spatie/laravel-query-builder` ^7.0 (`allowed*()` take variadic
+  arguments now, not arrays).
+- Removed `codium/laravel-sms-capture` (stuck on Laravel 11) in favour of
+  `App\Listeners\CaptureOutgoingSms`, and the unused `spatie/laravel-permission` (roles are Bouncer).
+- CSRF middleware is `App\Http\Middleware\PreventRequestForgery` (Laravel 13 rename); Sanctum's
+  config key is `validate_csrf_token`. Cross-port SPA requests still pass via the XSRF token.
+- Adopted the hardened Laravel 13 defaults: cache `serializable_classes => false` and session
+  `serialization => json` (existing sessions are logged out once).
+- 62/62 tests pass; also smoke-tested with `artisan serve` + SQLite (CSRF cookie flow, login, user
+  filters/sorts, roles include, blogs, SMS capture).
+
 See README.md for setup.
 
 ## Getting started (dev)
@@ -46,7 +59,8 @@ docker compose exec fpm php artisan migrate --seed
 - API: http://localhost:8000
 - Emails (MailDev): http://localhost:8025
 - Seeded logins: admin@example.com / Secret*12345 (super admin), user@example.com / Secret*12345
-- With APP_ENV=local, SMS codes are captured instead of sent and show up in api/storage/logs/laravel.log.
+- With APP_ENV=local, SMS codes are captured instead of sent and show up in api/storage/logs/laravel.log
+  (`App\Listeners\CaptureOutgoingSms`).
 
 ## SECURITY
 The original repo committed `ec2-pem.pem` (an RSA private key). Rotate that EC2 key pair and purge
