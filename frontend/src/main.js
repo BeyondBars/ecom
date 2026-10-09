@@ -1,10 +1,16 @@
-import './assets/css/nucleo-icons.css'
-import './assets/css/nucleo-svg.css'
-import './assets/css/material-dashboard.css'
-import './assets/css/app.scss'
+import './assets/css/app.css'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon as fa } from '@fortawesome/vue-fontawesome'
-import { faChevronLeft, faFilePen, faUserSecret } from '@fortawesome/free-solid-svg-icons'
+import {
+  faBars,
+  faChevronLeft,
+  faCircleUser,
+  faGear,
+  faHouse,
+  faRightFromBracket,
+  faUsers,
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons'
 import { faFacebookF, faGoogle } from '@fortawesome/free-brands-svg-icons'
 
 import { createApp, defineComponent, h } from 'vue'
@@ -21,7 +27,7 @@ import VueSweetalert2 from 'vue-sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import moment from 'moment'
 // Add icons to the library
-library.add(faChevronLeft, faFilePen, faUserSecret, faFacebookF, faGoogle)
+library.add(faBars, faChevronLeft, faCircleUser, faGear, faHouse, faRightFromBracket, faUsers, faXmark, faFacebookF, faGoogle)
 
 const app = createApp(App)
 

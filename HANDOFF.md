@@ -1,4 +1,4 @@
-# Handoff: fixed clone of beyondBars/invoice
+# Handoff: Laravel + Vue starter (from beyondBars/invoice)
 
 Same architecture as the original: Laravel API (upgraded from 11 to 13) (`api/`, Sanctum SPA cookie auth, Bouncer roles)
 plus a Vue 3 + Pinia + Vite SPA (`frontend/`), run with `docker-compose.yml`.
@@ -32,7 +32,7 @@ plus a Vue 3 + Pinia + Vite SPA (`frontend/`), run with `docker-compose.yml`.
   `ImageDialog/ImageDialog.vue`, so they only typecheck; re-enabling them needs that work first.
 
 ### Laravel 13 upgrade: DONE and verified
-- PHP 8.3+ (Dockerfile now `php:8.3-fpm`), `laravel/framework` ^13.0, `laravel/tinker` ^3.0,
+- PHP 8.3+ (Dockerfile later bumped to `php:8.4-fpm`, see below), `laravel/framework` ^13.0, `laravel/tinker` ^3.0,
   `phpunit/phpunit` ^12.5, `spatie/laravel-query-builder` ^7.0 (`allowed*()` take variadic
   arguments now, not arrays).
 - Removed `codium/laravel-sms-capture` (stuck on Laravel 11) in favour of
@@ -45,6 +45,22 @@ plus a Vue 3 + Pinia + Vite SPA (`frontend/`), run with `docker-compose.yml`.
   filters/sorts, roles include, blogs, SMS capture).
 
 See README.md for setup.
+
+### Starter conversion (branch `starter-tailwind`)
+- Removed the demo blog feature (API model, controller, policy, requests, resources, migration, factory,
+  seeder, tests; SPA views, store, types, routes) and the `blogger` / `invoicer` roles.
+- Frontend moved from Creative Tim Material Dashboard (Bootstrap + Sass) to Tailwind CSS 4
+  (`@tailwindcss/vite`). Shared building blocks (`.btn`, `.form-input`, `.card`, ...) and the brand colours
+  live in `frontend/src/assets/css/app.css`. Auth screens share `components/auth/AuthCard.vue`; app pages use
+  `components/app/PageHeader.vue`. The app shell has a mobile menu.
+- Removed Tiptap, the template's JS/SCSS/fonts/demo images, `sass`, `@popperjs/core`, `font-awesome` 4 and
+  `@types/bootstrap`. Icons are Font Awesome SVG icons registered in `main.js`.
+- `vite.config.js` is now `vite.config.mjs` (`@tailwindcss/vite` is ESM-only).
+- Fixed: the 2FA email used a non-existent `mail::code` component, so every 2FA email failed to send. Now
+  `mail::panel`, with a test that renders the email (`Notification::fake()` never rendered it).
+- Docker image is `php:8.4-fpm`; `composer.json` still allows `^8.3`.
+- 51/51 API tests pass; `npm run typecheck` and `npm run build` pass. Sign-in, 2FA setup and verification,
+  dashboard, users, account and settings were checked in a browser at desktop and phone widths.
 
 ## Getting started (dev)
 ```

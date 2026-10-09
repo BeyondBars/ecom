@@ -1,38 +1,19 @@
 <template>
-  <div class="container my-auto">
-    <div class="row">
-      <div class="col-lg-5 col-md-8 col-12 mx-auto">
-        <div class="card z-index-0 fadeIn3 fadeInBottom">
-          <div class="card-body">
-            <router-link :to="{ name: 'login' }">
-              <img class="logo" src="@/assets/img/logo/logo.png" alt="She Codes" />
-            </router-link>
-            <form role="form" class="card-body" @submit="onSubmit">
+  <AuthCard title="Set password">
+    <form novalidate @submit="onSubmit">
+      <HTBFormField name="password" label="Password" type="password" />
+      <HTBFormField name="password_confirmation" label="Confirm password" type="password" />
+      <PasswordStrengthBar :password="password" label="Password strength" />
 
-              <h4 class="text-primary font-weight-bolder mb-4">Set Password</h4>
-
-              
-              <HTBFormField name="password" label="Password" type="password" />
-              <HTBFormField name="password_confirmation" label="Confirm Password" type="password" />
-              
-              <PasswordStrengthBar class="mb-4" :password="password" label="Password Strength" />
-
-              <div class="row">
-                <div class="col text-end">
-                  <button class="btn btn-primary">
-                    <span class="label">Set Password</span>
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
+      <div class="mt-6 flex justify-end">
+        <button type="submit" class="btn btn-primary">Set password</button>
       </div>
-    </div>
-  </div>
+    </form>
+  </AuthCard>
 </template>
 
 <script lang="ts" setup>
+import AuthCard from '@/components/auth/AuthCard.vue'
 import { http } from '@/utils'
 import HTBFormField from '@/components/HTBFormField.vue'
 import PasswordStrengthBar from '@/components/auth/PasswordStrengthBar.vue'

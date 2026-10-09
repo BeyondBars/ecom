@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AuthCard from '@/components/auth/AuthCard.vue'
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
 import { useRoute, useRouter } from 'vue-router'
@@ -28,35 +29,23 @@ const onSubmit = handleSubmit(async (payload) => {
 </script>
 
 <template>
-  <div class="container my-auto">
-    <div class="row">
-      <div class="col-lg-5 col-md-8 col-12 mx-auto">
-        <div class="card card-authentication">
-          <form class="card-body" novalidate @submit="onSubmit">
-            <img class="logo" src="@/assets/img/logo/logo.png" alt="Invoice" />
-            <h4 class="text-primary font-weight-bolder mb-4">Terms and Conditions</h4>
-            <p class="text-sm">Please review and accept our terms to continue.</p>
+  <AuthCard title="Terms and conditions">
+    <form novalidate @submit="onSubmit">
+      <p class="mb-4 text-sm text-slate-600">Please review and accept our terms to continue.</p>
 
-            <div class="form-check ps-0 mb-2">
-              <input id="agree_terms" v-model="agreeTerms" class="form-check-input" type="checkbox" />
-              <label class="form-check-label" for="agree_terms">
-                I agree to the
-                <a :href="termsAndConditionsUrl" target="_blank" rel="noopener" class="text-primary">terms and conditions</a>
-              </label>
-            </div>
-            <span v-if="errorMessage" class="text-danger text-xs">{{ errorMessage }}</span>
+      <label class="flex items-start gap-2 text-sm text-slate-700" for="agree_terms">
+        <input id="agree_terms" v-model="agreeTerms" class="form-check mt-0.5" type="checkbox" />
+        <span>
+          I agree to the
+          <a :href="termsAndConditionsUrl" target="_blank" rel="noopener" class="link">terms and conditions</a>
+        </span>
+      </label>
+      <span v-if="errorMessage" class="form-error">{{ errorMessage }}</span>
 
-            <div class="row mt-4">
-              <div class="col-auto d-flex align-items-center">
-                <button type="button" class="btn btn-link text-sm text-muted p-0 mb-0" @click="logout">Sign out</button>
-              </div>
-              <div class="col text-end">
-                <button type="submit" class="btn btn-primary mb-0" :disabled="isSubmitting">Continue</button>
-              </div>
-            </div>
-          </form>
-        </div>
+      <div class="mt-6 flex items-center justify-between gap-4">
+        <button type="button" class="link-muted" @click="logout">Sign out</button>
+        <button type="submit" class="btn btn-primary" :disabled="isSubmitting">Continue</button>
       </div>
-    </div>
-  </div>
+    </form>
+  </AuthCard>
 </template>

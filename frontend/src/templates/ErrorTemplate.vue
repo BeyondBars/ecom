@@ -1,11 +1,5 @@
 <template>
-  <div id="app">
-    <div class="container flex-grow-1 d-flex align-items-center">
-      <RouterView />
-    </div>
-  </div>
+  <main class="flex min-h-dvh items-center justify-center px-4">
+    <RouterView />
+  </main>
 </template>
-
-<script>
-export default {}
-</script>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AuthCard from '@/components/auth/AuthCard.vue'
 /* 1️⃣ 📦 Imports */
 import EmailVerification from './EmailVerification.vue'
 import { isAxiosError } from 'axios'
@@ -51,32 +52,17 @@ const onSubmit = handleSubmit(async (payload) => {
 </script>
 
 <template>
-  <div class="container my-auto">
-    <div class="row">
-      <div class="col-lg-5 col-md-8 col-12 mx-auto">
-        <div class="card z-index-0 fadeIn3 fadeInBottom">
-          <div class="card-body" v-if="!notificationSent">
-            <img class="logo mt-4" src="@/assets/img/logo/logo.png" alt="She Codes" />
-            <h4 class="text-primary font-weight-bolder mb-4">Sign Up</h4>
-            <form role="form" class="text-start" @submit.prevent="onSubmit">
-              <HTBFormField name="email" label="Email Address" type="email" />
-              <div class="row mt-4 mb-5">
-                <div class="col-auto text-end d-flex align-items-center">
-                  <a href="/" class="mb-2 text-sm mx-auto">Back to login.</a>
-                </div>
-                <div class="col text-end">
-                  <button type="submit" class="btn btn-primary">
-                    <span class="label">Next</span>
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-          <email-verification :email="email" v-else />
-        </div>
+  <AuthCard title="Sign up">
+    <form v-if="!notificationSent" novalidate @submit.prevent="onSubmit">
+      <HTBFormField name="email" label="Email address" type="email" />
+
+      <div class="mt-6 flex items-center justify-between gap-4">
+        <RouterLink :to="{ name: 'login' }" class="link-muted">Back to sign in</RouterLink>
+        <button type="submit" class="btn btn-primary">Next</button>
       </div>
-    </div>
-  </div>
+    </form>
+    <EmailVerification v-else :email="email" />
+  </AuthCard>
 </template>
 
 <style scoped>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AuthCard from '@/components/auth/AuthCard.vue'
 import { isAxiosError } from 'axios'
 import * as yup from 'yup'
 import { useForm, useField } from 'vee-validate'
@@ -62,56 +63,45 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-  <div class="container my-auto">
-    <div class="row">
-      <div class="col-lg-5 col-md-8 col-12 mx-auto">
-        <div class="card card-authentication">
-          <form class="card-body" novalidate @submit="onSubmit">
-            <img class="logo" src="@/assets/img/logo/logo.png" alt="Invoice" />
+  <AuthCard title="Set up 2-step verification">
+    <form novalidate @submit="onSubmit">
+      <p class="mb-4 text-sm text-slate-600">
+        Using a second authentication method helps keep your account secure.
+      </p>
 
-            <h4 class="text-primary font-weight-bolder mb-4">Set up 2-Step Verification</h4>
-            <p class="text-sm">Using a second authentication method helps keep your account secure.</p>
+      <label class="mb-4 flex items-center gap-2 text-sm font-medium text-slate-700" for="two_factor_required">
+        <input id="two_factor_required" v-model="twoFactorRequired" class="form-check" type="checkbox" />
+        Use 2-step verification when signing in
+      </label>
 
-            <div class="form-check form-switch ps-0 mb-3">
-              <input
-                id="two_factor_required"
-                v-model="twoFactorRequired"
-                class="form-check-input ms-auto"
-                type="checkbox"
-              />
-              <label class="form-check-label text-body ms-3 mb-0 fw-bold" for="two_factor_required">
-                Use 2-step verification when logging in
-              </label>
-            </div>
-
-            <fieldset v-if="twoFactorRequired">
-              <legend class="text-sm fw-bold">Send my codes by</legend>
-              <div v-for="option in securityOptions" :key="option.value" class="form-check">
-                <input
-                  :id="`method-${option.value}`"
-                  v-model="twoFactorMethodPreferred"
-                  class="form-check-input"
-                  type="radio"
-                  :value="option.value"
-                />
-                <label class="form-check-label" :for="`method-${option.value}`">{{ option.label }}</label>
-              </div>
-              <span v-if="errors.two_factor_method_preferred" class="text-danger text-xs">
-                {{ errors.two_factor_method_preferred }}
-              </span>
-            </fieldset>
-
-            <div class="row mt-4">
-              <div class="col-auto d-flex align-items-center">
-                <button type="button" class="btn btn-link text-sm text-muted p-0 mb-0" @click="logout">Sign out</button>
-              </div>
-              <div class="col text-end">
-                <button type="submit" class="btn btn-primary mb-0" :disabled="isSubmitting">Next</button>
-              </div>
-            </div>
-          </form>
+      <fieldset v-if="twoFactorRequired">
+        <legend class="form-label">Send my codes by</legend>
+        <div class="flex gap-6">
+          <label
+            v-for="option in securityOptions"
+            :key="option.value"
+            class="flex items-center gap-2 text-sm text-slate-700"
+            :for="`method-${option.value}`"
+          >
+            <input
+              :id="`method-${option.value}`"
+              v-model="twoFactorMethodPreferred"
+              class="form-check"
+              type="radio"
+              :value="option.value"
+            />
+            {{ option.label }}
+          </label>
         </div>
+        <span v-if="errors.two_factor_method_preferred" class="form-error">
+          {{ errors.two_factor_method_preferred }}
+        </span>
+      </fieldset>
+
+      <div class="mt-6 flex items-center justify-between gap-4">
+        <button type="button" class="link-muted" @click="logout">Sign out</button>
+        <button type="submit" class="btn btn-primary" :disabled="isSubmitting">Next</button>
       </div>
-    </div>
-  </div>
+    </form>
+  </AuthCard>
 </template>

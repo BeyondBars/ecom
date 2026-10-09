@@ -1,72 +1,44 @@
 <template>
-<aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 fixed-start bg-gradient-dark bg-white" id="sidenav-main">
-  <div class="sidenav-header">
-    <i class="fas fa-times p-3 cursor-pointer text-white opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
-    <a class="navbar-brand text-center">
-      <img class="navbar-brand-img" src="@/assets/img/logo/white-logo.png" alt="She Codes" />
-    </a>
-  </div>
-  <hr class="horizontal light mt-0 mb-2">
-  <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
-    <ul class="navbar-nav">
-      <SidebarItem
-        :to="{ name: 'dashboard' }"
-        icon="home"
-      >
-        Dashboard
-      </SidebarItem>
-      <SidebarItem
-        :to="{ name: 'users' }"
-        icon="manage_accounts"
-      >
-        User Management
-      </SidebarItem>
-      <SidebarItem
-        :to="{ name: 'blogs' }"
-        icon="rss_feed"
-      >
-        Blog Management
-      </SidebarItem>
-      <SidebarItem
-        :to="{ name: 'settings' }"
-        icon="settings"
-      >
-        Settings
-      </SidebarItem>
-      <SidebarItem
-        :to="{ name: 'account' }"
-        icon="account_circle"
-      >
-        My Account
-      </SidebarItem>
-      <SidebarItem
-        icon="logout"
-        @click.prevent="logoutUser"
-      >
-        Logout
-      </SidebarItem>
-    </ul>
-  </div>
-</aside>
+  <!-- Backdrop (mobile only) -->
+  <div v-if="open" class="fixed inset-0 z-30 bg-slate-900/40 lg:hidden" @click="emit('close')" />
+
+  <aside
+    class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-slate-900 text-slate-300 transition-transform lg:static lg:translate-x-0"
+    :class="open ? 'translate-x-0' : '-translate-x-full'"
+  >
+    <div class="flex items-center justify-between px-5 py-5">
+      <img class="h-8 w-auto" src="@/assets/img/logo/white-logo.png" alt="Home" />
+      <button type="button" class="rounded-md p-2 hover:bg-slate-800 lg:hidden" aria-label="Close menu" @click="emit('close')">
+        <FontAwesomeIcon icon="xmark" />
+      </button>
+    </div>
+
+    <nav class="flex flex-1 flex-col gap-1 px-3">
+      <SidebarItem :to="{ name: 'dashboard' }" icon="house">Dashboard</SidebarItem>
+      <SidebarItem :to="{ name: 'users' }" icon="users">User Management</SidebarItem>
+      <SidebarItem :to="{ name: 'settings' }" icon="gear">Settings</SidebarItem>
+      <SidebarItem :to="{ name: 'account' }" icon="circle-user">My Account</SidebarItem>
+
+      <div class="mt-auto mb-4">
+        <SidebarItem icon="right-from-bracket" @click="logoutUser">Logout</SidebarItem>
+      </div>
+    </nav>
+  </aside>
 </template>
 
 <script lang="ts" setup>
-import SidebarItem from './AppSideBarItem.vue'
-import { watch, ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useLogout } from '@/composables/use-logout'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { useToast } from 'vue-toast-notification'
 import { isAxiosError } from 'axios'
-const toast = useToast()
-const router = useRouter()
+import SidebarItem from './AppSideBarItem.vue'
+import { useLogout } from '@/composables/use-logout'
 
-const route = useRoute()
-const wrapper = ref<Element | null>(null)
+defineProps<{ open: boolean }>()
+const emit = defineEmits<{ close: [] }>()
+
+const toast = useToast()
 const { logout } = useLogout()
 
-onMounted(() => {
-  wrapper.value = document.querySelector('#wrapper')
-})
 const logoutUser = async () => {
   try {
     await logout()
@@ -79,14 +51,4 @@ const logoutUser = async () => {
     throw error
   }
 }
-
-watch(route, () => {
-  if (wrapper.value === null) {
-    return
-  }
-
-  if (wrapper.value.classList.contains('toggled')) {
-    wrapper.value.classList.remove('toggled')
-  }
-})
 </script>

@@ -13,7 +13,5 @@ class DatabaseSeeder extends BaseSeeder
 
         static::superAdminUser();
         static::standardUser();
-
-        $this->call(BlogSeeder::class);
     }
 }

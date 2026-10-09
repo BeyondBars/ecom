@@ -1,42 +1,27 @@
 <template>
-  <div class="container-fluid py-4">
-    <div class="row">
-      <div class="col-12">
-        <div class="card my-4">
-          <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
-              <h6 class="text-white text-capitalize ps-3">Edit User</h6>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-12 col-xl-6 p-4">
-              <form role="form" class="text-start" @submit="onSubmit">
-                <HTBFormField name="first_name" label="First Name" type="text" />
-                <HTBFormField name="last_name" label="Last Name" type="text" />
-                <HTBPhoneInput name="mobile" label="Mobile" type="text" />
-                <label class="text-dark text-bolder form-label mb-0">Email</label>
-                <div class="input-group input-group-outline mb-3 form-group-outline">
-                  <!-- Bind input fields with vee-validate properties -->
-                  <input
-                    :class="`form-control d-block w-100`"
-                    v-model="email"
-                    type="email"
-                    :disabled="true"
-                  />
-                  <!-- <span class="text-danger text-xs mt-1" v-if="errorMessage">{{ errorMessage }}</span> -->
-                </div>
-                <button type="submit" class="btn btn-primary float-end">
-                  <span class="label">Update Details</span>
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
+  <PageHeader title="Edit user" />
+
+  <div class="card max-w-xl p-6">
+    <form novalidate @submit="onSubmit">
+      <div class="grid gap-x-4 sm:grid-cols-2">
+        <HTBFormField name="first_name" label="First name" type="text" />
+        <HTBFormField name="last_name" label="Last name" type="text" />
       </div>
-    </div>
+      <HTBPhoneInput name="mobile" label="Mobile" type="text" />
+
+      <div class="mb-4">
+        <label class="form-label" for="email">Email</label>
+        <input id="email" v-model="email" class="form-input" type="email" disabled />
+      </div>
+
+      <div class="flex justify-end">
+        <button type="submit" class="btn btn-primary">Update details</button>
+      </div>
+    </form>
   </div>
 </template>
 <script lang="ts" setup>
+import PageHeader from '@/components/app/PageHeader.vue'
 import HTBFormField from '@/components/HTBFormField.vue'
 import HTBPhoneInput from '@/components/HTBPhoneInput.vue'
 

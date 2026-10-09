@@ -82,13 +82,13 @@ class UserTest extends TestCase
             'first_name' => 'New',
             'last_name' => 'Person',
             'email' => 'new@example.com',
-            'role' => UserRole::Blogger->value,
+            'role' => UserRole::Staff->value,
         ])->assertCreated();
 
         $user = User::where('email', 'new@example.com')->first();
 
         $this->assertSame(UserStatus::Pending, $user->status);
-        $this->assertTrue($user->isA(UserRole::Blogger->value));
+        $this->assertTrue($user->isA(UserRole::Staff->value));
         Notification::assertSentTo($user, ResetPasswordNotification::class, fn ($n) => $n->invite === true);
     }
 

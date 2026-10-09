@@ -1,11 +1,5 @@
 <template>
-  <div>
-    <Suspense>
-      <RouterView />
-    </Suspense>
-  </div>
+  <Suspense>
+    <RouterView />
+  </Suspense>
 </template>
-
-<script>
-export default {}
-</script>

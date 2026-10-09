@@ -1,11 +1,9 @@
 <template>
   <div>
-    <p v-if="label" class="label">
-      {{ label }}
-    </p>
-    <div class="progress">
+    <p v-if="label" class="mb-1 text-xs font-medium text-slate-500">{{ label }}</p>
+    <div class="h-2 overflow-hidden rounded-full bg-slate-200">
       <div
-        :class="['progress-bar', strengthClass]"
+        :class="['h-full transition-all', strengthClass]"
         role="progressbar"
         :style="`width: ${strength}%`"
         :aria-valuenow="strength"
@@ -47,14 +45,14 @@ const strengthClass = computed(() => {
   switch (strength.value) {
     case 0:
     case 25:
-      return 'bg-danger'
+      return 'bg-red-500'
     case 50:
-      return 'bg-warning'
+      return 'bg-amber-500'
     case 75:
     case 100:
-      return 'bg-success'
+      return 'bg-emerald-500'
     default:
-      return 'bg-danger'
+      return 'bg-red-500'
   }
 })
 </script>
