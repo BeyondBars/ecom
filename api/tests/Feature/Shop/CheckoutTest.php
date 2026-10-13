@@ -193,6 +193,19 @@ class CheckoutTest extends TestCase
         ])->assertJsonValidationErrors(['address.postal_code', 'address.phone']);
     }
 
+    public function testPhoneNumbersWithSpacesAreAccepted()
+    {
+        $product = Product::factory()->withoutOptions()->create();
+        $this->beUser();
+
+        $this->checkout([
+            'items' => [['product_id' => $product->id, 'quantity' => 1]],
+            'address' => $this->address(['phone' => '98765 43210']),
+        ])->assertCreated()->assertJsonPath('data.shipping_address.phone', '9876543210');
+
+        $this->postJson('shop/addresses', $this->address(['phone' => '+91 98765-43210']))->assertCreated();
+    }
+
     public function testCodCanBeDisabledOrCapped()
     {
         $product = Product::factory()->withoutOptions()->create(['price' => 30000]);

@@ -81,6 +81,20 @@ class StorefrontAccountTest extends TestCase
         $this->assertModelExists($staff);
     }
 
+    public function testStorefrontServerGetsAHigherRateLimit()
+    {
+        config(['shop.storefront_server_key' => 'secret-key']);
+        $limiter = \Illuminate\Support\Facades\RateLimiter::limiter('api');
+
+        $browser = \Illuminate\Http\Request::create('/shop/products', 'GET', server: ['REMOTE_ADDR' => '10.0.0.1']);
+        $server = \Illuminate\Http\Request::create('/shop/products', 'GET', server: ['REMOTE_ADDR' => '10.0.0.1', 'HTTP_X_STOREFRONT_KEY' => 'secret-key']);
+        $wrongKey = \Illuminate\Http\Request::create('/shop/products', 'GET', server: ['REMOTE_ADDR' => '10.0.0.1', 'HTTP_X_STOREFRONT_KEY' => 'guess']);
+
+        $this->assertSame(120, $limiter($browser)->maxAttempts);
+        $this->assertSame(3000, $limiter($server)->maxAttempts);
+        $this->assertSame(120, $limiter($wrongKey)->maxAttempts);
+    }
+
     public function testOrderItemsLinkToTheirProduct()
     {
         $customer = $this->createStandardUser();

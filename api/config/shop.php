@@ -14,6 +14,10 @@ return [
 
     'currency' => 'INR',
 
+    // Shared secret the storefront's server sends (X-Storefront-Key) when it renders pages. Those
+    // requests all come from one IP, so they get a higher rate limit than a single browser.
+    'storefront_server_key' => env('STOREFRONT_API_KEY'),
+
     // Order numbers look like LFC-100042
     'order_prefix' => env('SHOP_ORDER_PREFIX', 'LFC'),
 

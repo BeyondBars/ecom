@@ -31,6 +31,19 @@ class ShopServiceProvider extends ServiceProvider
 
     protected function configureRateLimiters(): void
     {
+        // Replaces the starter's "api" limiter (RouteServiceProvider boots first): same limits for
+        // browsers, but the storefront server, which renders pages for every shopper from one IP, is
+        // recognised by its key and shares a much larger allowance.
+        RateLimiter::for('api', function (Request $request) {
+            $key = (string) config('shop.storefront_server_key');
+
+            if ($key !== '' && hash_equals($key, (string) $request->header('X-Storefront-Key'))) {
+                return Limit::perMinute(3000)->by('storefront-server');
+            }
+
+            return Limit::perMinute(120)->by($request->user()?->id ?: $request->ip());
+        });
+
         RateLimiter::for('checkout', fn (Request $request) => Limit::perMinute(10)->by('checkout:'.$request->user()?->id));
 
         // Public forms: newsletter, contact, back-in-stock alerts, blog comments

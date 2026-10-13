@@ -25,6 +25,14 @@ class AddressRules
         ];
     }
 
+    /**
+     * "98765 43210" and "98765-43210" are the same number: strip spaces and dashes before validating.
+     */
+    public static function normalisePhone(?string $phone): ?string
+    {
+        return $phone === null ? null : preg_replace('/[\s\-()]/', '', $phone);
+    }
+
     public static function messages(string $prefix = ''): array
     {
         return [

@@ -55,6 +55,8 @@ full list.
 - The storefront must run on the same site as the API for cookie sign-in (e.g. `shop.example.com` and
   `api.example.com` with `SESSION_DOMAIN=.example.com`), and be listed in `SANCTUM_STATEFUL_DOMAINS` and
   `STOREFRONT_URL`.
+- Set `STOREFRONT_API_KEY` to a long random string here and on the storefront's server. The storefront renders
+  pages for every shopper from one IP; requests carrying this key get a higher rate limit than a single browser.
 - `migrate --seed` adds demo products, categories, coupons (WELCOME10, FLAT200, FREESHIP), banners and a blog post
   matching the storefront's sample data.
 

@@ -13,6 +13,13 @@ class SaveAddressRequest extends FormRequest
         return !$address || $address->user_id === $this->user()->id;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('phone')) {
+            $this->merge(['phone' => AddressRules::normalisePhone($this->input('phone'))]);
+        }
+    }
+
     public function rules(): array
     {
         return [

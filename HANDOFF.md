@@ -4,7 +4,7 @@
 
 - Started from htb-backend-base with ecom's earlier history kept as a parent commit; the previous Next.js
   admin and the partial Laravel backend were replaced. Their features were rebuilt on the starter's patterns.
-- API: 121 tests pass (`cd api && php vendor/bin/phpunit`), 62 of them for the shop (catalogue, checkout,
+- API: 129 tests pass (`cd api && php vendor/bin/phpunit`), 70 of them for the shop (catalogue, checkout,
   orders, payments, reviews, wishlist, alerts, blog, settings, dashboard).
 - Admin: `npm run typecheck` and `npm run build` pass; the main flows were clicked through in a browser
   against a seeded database (orders, products, categories, coupons, reviews, banners, blog, inbox, settings).
@@ -12,7 +12,8 @@
 
 ### Not done yet
 
-- The storefront (ecommerce-frontend) still uses its own mock data; connecting it to `shop/*` is the next step.
+- The storefront (ecommerce-frontend) is connected to `shop/*` when `NEXT_PUBLIC_API_URL` is set (sign-up, sign-in,
+  catalogue, cart pricing, checkout, orders, addresses, wishlist, reviews, alerts, newsletter, contact, settings).
 - Refunds through the Razorpay API (refunds are recorded manually after issuing them in Razorpay).
 - Invoices are printed from the order page; there is no PDF or GST invoice numbering yet.
 - Shipping is flat-rate (standard/express); no courier integration or PIN-code serviceability check.

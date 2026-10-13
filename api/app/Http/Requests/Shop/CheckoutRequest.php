@@ -8,6 +8,13 @@ use Illuminate\Validation\Rule;
 
 class CheckoutRequest extends CartRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if (is_array($this->input('address')) && $this->has('address.phone')) {
+            $this->merge(['address' => [...$this->input('address'), 'phone' => AddressRules::normalisePhone($this->input('address.phone'))]]);
+        }
+    }
+
     public function rules(): array
     {
         return [
