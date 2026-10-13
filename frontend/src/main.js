@@ -5,8 +5,13 @@ import {
   faBars,
   faChevronLeft,
   faCircleUser,
+  faEllipsis,
+  faEnvelope,
+  faEye,
   faGear,
   faHouse,
+  faMagnifyingGlass,
+  faPaperPlane,
   faRightFromBracket,
   faUsers,
   faXmark,
@@ -27,7 +32,23 @@ import VueSweetalert2 from 'vue-sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import moment from 'moment'
 // Add icons to the library
-library.add(faBars, faChevronLeft, faCircleUser, faGear, faHouse, faRightFromBracket, faUsers, faXmark, faFacebookF, faGoogle)
+library.add(
+  faBars,
+  faChevronLeft,
+  faCircleUser,
+  faEllipsis,
+  faEnvelope,
+  faEye,
+  faGear,
+  faHouse,
+  faMagnifyingGlass,
+  faPaperPlane,
+  faRightFromBracket,
+  faUsers,
+  faXmark,
+  faFacebookF,
+  faGoogle
+)
 
 const app = createApp(App)
 
