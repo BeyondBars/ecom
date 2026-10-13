@@ -57,5 +57,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Roles (read-only: roles are defined in code and synced with `php artisan abilities:refresh`)
         Route::get('/roles', [Controllers\RoleController::class, 'index']);
         Route::get('/roles/{role}', [Controllers\RoleController::class, 'show']);
+
+        // Email templates (registered in App\Providers\EmailTemplateServiceProvider)
+        Route::get('/email-templates', [Controllers\EmailTemplateController::class, 'index']);
+        Route::get('/email-templates/{template}', [Controllers\EmailTemplateController::class, 'show']);
+        Route::post('/email-templates/{template}/test', [Controllers\EmailTemplateController::class, 'sendTest'])->middleware('throttle:test-emails');
     });
 });

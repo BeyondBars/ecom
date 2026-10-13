@@ -16,6 +16,7 @@
     <nav class="flex flex-1 flex-col gap-1 px-3">
       <SidebarItem :to="{ name: 'dashboard' }" icon="house">Dashboard</SidebarItem>
       <SidebarItem :to="{ name: 'users' }" icon="users">User Management</SidebarItem>
+      <SidebarItem v-if="can('manage email templates')" :to="{ name: 'email-templates' }" icon="envelope">Email Templates</SidebarItem>
       <SidebarItem :to="{ name: 'settings' }" icon="gear">Settings</SidebarItem>
       <SidebarItem :to="{ name: 'account' }" icon="circle-user">My Account</SidebarItem>
 
@@ -32,12 +33,14 @@ import { useToast } from 'vue-toast-notification'
 import { isAxiosError } from 'axios'
 import SidebarItem from './AppSideBarItem.vue'
 import { useLogout } from '@/composables/use-logout'
+import { useLoggedInUser } from '@/composables/use-logged-in-user'
 
 defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: [] }>()
 
 const toast = useToast()
 const { logout } = useLogout()
+const { can } = useLoggedInUser()
 
 const logoutUser = async () => {
   try {
