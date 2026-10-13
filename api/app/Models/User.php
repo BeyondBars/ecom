@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ShopCustomer;
 use App\Notifications\Auth\TwoFactorVerificationNotification;
 use App\Notifications\Auth\VerifyEmailNotification;
 use App\Support\Enums\UserRole;
@@ -19,6 +20,7 @@ class User extends Authenticatable
 {
     use HasFactory;
     use HasRolesAndAbilities;
+    use ShopCustomer;
     use Notifiable;
     use VerifiesTwoFactorCodes;
 

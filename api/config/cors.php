@@ -14,6 +14,8 @@ return [
     'allowed_origins' => array_values(array_filter([
         env('APP_URL', 'http://localhost:8000'),
         env('JS_APP_URL', 'http://localhost:8080'),
+        // The customer-facing storefront (ecommerce-frontend)
+        env('STOREFRONT_URL'),
     ])),
     'allowed_origins_patterns' => [],
     'allowed_headers' => [
