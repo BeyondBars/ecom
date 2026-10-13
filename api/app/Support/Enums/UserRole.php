@@ -12,7 +12,7 @@ enum UserRole: string
     {
         return match ($this) {
             self::SuperAdmin => 'Super Admin',
-            self::User => 'User',
+            self::User => 'Customer',
             self::Staff => 'Staff',
         };
     }
@@ -21,7 +21,7 @@ enum UserRole: string
     {
         return match ($this) {
             self::SuperAdmin => 'Has full access to all system features, settings, and user management.',
-            self::User => 'Standard user with access to general features and personal profile management.',
+            self::User => 'Customer: shops on the storefront and manages their own orders, addresses and profile.',
             self::Staff => 'Internal team member with access to operational tools and limited administrative privileges.',
         };
     }
@@ -33,7 +33,16 @@ enum UserRole: string
     {
         return match ($this) {
             self::SuperAdmin => UserAbility::forRole($this),
-            self::Staff => [UserAbility::ReadUsers->value],
+            // Staff run the shop day to day; settings, user management and email templates stay with super admins.
+            self::Staff => [
+                UserAbility::ReadUsers->value,
+                UserAbility::ManageCatalog->value,
+                UserAbility::ManageOrders->value,
+                UserAbility::ManageCoupons->value,
+                UserAbility::ManageReviews->value,
+                UserAbility::ManageContent->value,
+                UserAbility::ViewReports->value,
+            ],
             self::User => [],
         };
     }

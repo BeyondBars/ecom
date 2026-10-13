@@ -64,3 +64,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/email-templates/{template}/test', [Controllers\EmailTemplateController::class, 'sendTest'])->middleware('throttle:test-emails');
     });
 });
+
+// Shop routes (catalogue, cart/checkout, orders and the admin back office) live in their own file
+// so starter changes to this file merge cleanly.
+require __DIR__.'/shop.php';
