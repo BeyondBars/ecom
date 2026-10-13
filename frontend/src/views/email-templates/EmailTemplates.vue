@@ -62,10 +62,17 @@
     </div>
   </div>
 
-  <AppModal v-if="preview" :title="preview.name" size="xl" @close="preview = null">
-    <p class="mb-3 text-sm text-slate-600">
-      <span class="font-medium text-slate-900">Subject:</span> {{ preview.subject }}
-    </p>
+  <AppModal v-if="preview" title="Email template preview" size="xl" @close="preview = null">
+    <dl class="mb-4 grid gap-x-4 gap-y-2 text-sm sm:grid-cols-[8rem_1fr]">
+      <dt class="font-medium text-slate-900">Template</dt>
+      <dd class="text-slate-600">{{ preview.name }}</dd>
+      <dt class="font-medium text-slate-900">Subject</dt>
+      <dd class="text-slate-600">{{ preview.subject }}</dd>
+      <dt class="font-medium text-slate-900">Type</dt>
+      <dd class="text-slate-600">{{ preview.type_title }}</dd>
+      <dt class="font-medium text-slate-900">Triggered by</dt>
+      <dd><code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-700">{{ preview.triggered_by }}</code></dd>
+    </dl>
     <p v-if="!preview.html" class="py-8 text-center text-sm text-slate-500">Loading preview...</p>
     <!-- Sandboxed with no permissions: the email's HTML can't run scripts or reach the app. -->
     <iframe
@@ -73,17 +80,31 @@
       :srcdoc="preview.html"
       sandbox=""
       title="Email preview"
-      class="h-[60vh] w-full rounded-lg border border-slate-200 bg-white"
+      class="h-[50vh] w-full rounded-lg border border-slate-200 bg-white"
     />
-    <div class="mt-4 flex justify-end">
-      <button type="button" class="btn btn-primary" @click="openSendTest(preview)">
-        <FontAwesomeIcon icon="paper-plane" /> Send test
-      </button>
-    </div>
+    <form class="mt-4" novalidate @submit.prevent="sendTest(preview)">
+      <label class="form-label" for="preview-test-email">Send test email to</label>
+      <div class="flex flex-col gap-2 sm:flex-row">
+        <input
+          id="preview-test-email"
+          v-model="testEmail"
+          type="email"
+          class="form-input"
+          :class="{ 'is-invalid': testError }"
+          placeholder="Enter email address"
+          required
+        />
+        <button type="submit" class="btn btn-primary shrink-0" :disabled="sending">
+          <FontAwesomeIcon icon="paper-plane" /> {{ sending ? 'Sending...' : 'Send test' }}
+        </button>
+      </div>
+      <span v-if="testError" class="form-error">{{ testError }}</span>
+      <p class="mt-2 text-xs text-slate-500">Sent with sample data and "[TEST]" in the subject. Links in it won't work.</p>
+    </form>
   </AppModal>
 
   <AppModal v-if="testTemplate" :title="`Send test: ${testTemplate.name}`" @close="testTemplate = null">
-    <form novalidate @submit.prevent="sendTest">
+    <form novalidate @submit.prevent="sendTest(testTemplate)">
       <p class="mb-4 text-sm text-slate-600">
         Sends this email with sample data and "[TEST]" in the subject. Links in it won't work.
       </p>
@@ -136,10 +157,21 @@ const filtered = computed(() => {
   )
 })
 
+const testTemplate = ref<EmailTemplateResource | null>(null)
+const testEmail = ref('')
+const testError = ref('')
+const sending = ref(false)
+
+const resetTestForm = () => {
+  testEmail.value = testEmail.value || loggedInUser.value.email
+  testError.value = ''
+}
+
 const preview = ref<EmailTemplateResource | null>(null)
 
 const openPreview = async (template: EmailTemplateResource) => {
   preview.value = { ...template }
+  resetTestForm()
 
   try {
     const loaded = await store.fetchPreview(template.key)
@@ -154,26 +186,19 @@ const openPreview = async (template: EmailTemplateResource) => {
   }
 }
 
-const testTemplate = ref<EmailTemplateResource | null>(null)
-const testEmail = ref('')
-const testError = ref('')
-const sending = ref(false)
-
 const openSendTest = (template: EmailTemplateResource) => {
-  preview.value = null
   testTemplate.value = template
-  testEmail.value = testEmail.value || loggedInUser.value.email
-  testError.value = ''
+  resetTestForm()
 }
 
-const sendTest = async () => {
-  if (!testTemplate.value || sending.value) return
+const sendTest = async (template: EmailTemplateResource | null) => {
+  if (!template || sending.value) return
 
   sending.value = true
   testError.value = ''
 
   try {
-    toast.success(await store.sendTest(testTemplate.value.key, testEmail.value))
+    toast.success(await store.sendTest(template.key, testEmail.value))
     testTemplate.value = null
   } catch (error) {
     if (isAxiosError(error) && error.response?.status === 422) {
