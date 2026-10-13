@@ -101,7 +101,7 @@ class CheckoutService
                 Coupon::whereKey($quote->coupon->id)->increment('used_count');
             }
 
-            $order->record('placed', 'Order placed');
+            $order->record('placed');
 
             return $order;
         });

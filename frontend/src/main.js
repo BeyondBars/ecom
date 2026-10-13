@@ -2,6 +2,15 @@ import './assets/css/app.css'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon as fa } from '@fortawesome/vue-fontawesome'
 import {
+  faBagShopping,
+  faCopyright,
+  faImages,
+  faInbox,
+  faLayerGroup,
+  faNewspaper,
+  faShirt,
+  faStar,
+  faTag,
   faBars,
   faChevronLeft,
   faCircleUser,
@@ -33,6 +42,15 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 import moment from 'moment'
 // Add icons to the library
 library.add(
+  faBagShopping,
+  faCopyright,
+  faImages,
+  faInbox,
+  faLayerGroup,
+  faNewspaper,
+  faShirt,
+  faStar,
+  faTag,
   faBars,
   faChevronLeft,
   faCircleUser,

@@ -1,6 +1,10 @@
 <template>
-  <PageHeader title="Settings" description="Roles are defined in code and synced with php artisan abilities:refresh." />
+  <PageHeader title="Settings" />
 
+  <StoreSettingsForm v-if="can('manage settings')" class="mb-6" />
+
+  <h2 class="mb-1 text-base font-semibold text-slate-900">Roles</h2>
+  <p class="mb-3 text-sm text-slate-500">Roles are defined in code and synced with php artisan abilities:refresh.</p>
   <div class="card overflow-hidden">
     <table class="min-w-full divide-y divide-slate-200 text-sm">
       <thead class="bg-slate-50 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase">
@@ -21,10 +25,13 @@
 
 <script lang="ts" setup>
 import PageHeader from '@/components/app/PageHeader.vue'
+import StoreSettingsForm from '@/components/shop/StoreSettingsForm.vue'
+import { useLoggedInUser } from '@/composables/use-logged-in-user'
 import { onMounted } from 'vue'
 import { useRoleStore } from '@/stores/roles'
 
 const rolesStore = useRoleStore()
+const { can } = useLoggedInUser()
 
 onMounted(() => {
   rolesStore.fetchRoles()
