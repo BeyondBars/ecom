@@ -46,6 +46,8 @@ class OrderResource extends JsonResource
                 'id' => $item->id,
                 'product_id' => $item->product_id,
                 'name' => $item->name,
+                // Link back to the product while it still exists
+                'slug' => $item->relationLoaded('product') ? $item->product?->slug : null,
                 'sku' => $item->sku,
                 'image_url' => $item->image_url,
                 'options' => $item->options ?? [],

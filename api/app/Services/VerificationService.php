@@ -14,7 +14,7 @@ class VerificationService
         return config('app.key');
     }
 
-    public static function generateSignedUrl(string $path, string $parameter, $expires = null, array $query = []): string
+    public static function generateSignedUrl(string $path, string $parameter, $expires = null, array $query = [], ?string $baseUrl = null): string
     {
         if ($expires) {
             $query['expires'] = now()->addMinutes($expires)->timestamp;
@@ -36,7 +36,8 @@ class VerificationService
             'email' => $parameter
         ]);
 
-        return rtrim(config('app.js_app_url'), '/') . '/' . ltrim($path, '/').'/'.$signature.$query;
+        // $baseUrl lets the storefront receive customer sign-up links (defaults to the admin SPA)
+        return rtrim($baseUrl ?? config('app.js_app_url'), '/') . '/' . ltrim($path, '/').'/'.$signature.$query;
     }
 
     public static function validateSignature(string $email, string $expires, string $signature): bool

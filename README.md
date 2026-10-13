@@ -38,8 +38,11 @@ Public: `GET shop/products` (filters `filter[category]`, `[brand]`, `[search]`, 
 Signed in: `shop/addresses`, `POST shop/checkout`, `shop/orders` (+ `cancel`, `return`,
 `payments/razorpay`), `shop/wishlist`, `POST shop/products/{slug}/reviews`, `POST shop/blog/{slug}/comments`.
 
-Customers sign up and sign in with the starter's endpoints (`/verification`, `/account-setup`, `/auth`,
-`/password/forgot`). See `api/routes/shop.php` for the full list.
+Customers sign up with `POST shop/register` (emails a link to the storefront's `/register/verify` page), then
+the starter's `GET /verify` and `POST /account-setup`. Sign-in, password reset and profile use the starter's
+`/auth`, `/password/forgot`, `/password/reset`, `/user` and `users/{id}`; password-reset emails for customers link to
+the storefront. Customers can close their account with `DELETE shop/account`. See `api/routes/shop.php` for the
+full list.
 
 ### Shop setup notes
 

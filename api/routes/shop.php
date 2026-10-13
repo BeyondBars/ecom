@@ -31,6 +31,9 @@ Route::middleware('throttle:shop-forms')->group(function () {
     Route::post('/shop/products/{slug}/stock-alerts', [Shop\EngagementController::class, 'stockAlert']);
 });
 
+// Customer sign-up: emails a link to the storefront's /register/verify page
+Route::post('/shop/register', [Shop\AccountController::class, 'register'])->middleware('throttle:emails');
+
 // Live cart prices (works for guests; coupon per-customer limits apply when signed in)
 Route::post('/shop/cart/quote', [Shop\CartController::class, 'quote']);
 
@@ -44,6 +47,8 @@ Route::post('/shop/payments/razorpay/webhook', [Shop\PaymentController::class, '
 */
 
 Route::middleware(['auth:sanctum', '2fa'])->prefix('shop')->group(function () {
+    Route::delete('account', [Shop\AccountController::class, 'destroy']);
+
     Route::get('addresses', [Shop\AddressController::class, 'index']);
     Route::post('addresses', [Shop\AddressController::class, 'store']);
     Route::put('addresses/{address}', [Shop\AddressController::class, 'update']);

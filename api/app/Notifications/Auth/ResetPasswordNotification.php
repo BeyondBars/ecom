@@ -33,7 +33,10 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
             ->subject(email_subject($this->invite ? 'You have been invited' : 'Reset Password'))
             ->markdown($this->invite ? 'mail.invitation' : 'mail.reset_password', [
                 'name' => $notifiable->name,
-                'url' => url()->app(sprintf('/set-password/%s?email=%s', $this->token, rawurlencode($notifiable->email))),
+                // Customers reset their password on the storefront; staff in the admin
+                'url' => $notifiable->isCustomer()
+                    ? $notifiable->storefrontUrl(sprintf('/reset-password/%s?email=%s', $this->token, rawurlencode($notifiable->email)))
+                    : url()->app(sprintf('/set-password/%s?email=%s', $this->token, rawurlencode($notifiable->email))),
             ]);
     }
 }

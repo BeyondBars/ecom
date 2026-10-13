@@ -162,7 +162,7 @@ return [
     'uuid' => 'The :attribute field must be a valid UUID.',
 
     // Application specific rules.
-    'mobile_number' => 'The :attribute must be a valid Australian mobile number (e.g. 0412 345 678).',
+    'mobile_number' => 'The :attribute must be a valid mobile number (e.g. 98765 43210).',
 
     /*
     |--------------------------------------------------------------------------

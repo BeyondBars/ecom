@@ -37,7 +37,7 @@ class PaymentController extends Controller
 
         $this->recordPayment($order, $data['razorpay_payment_id'], $orders);
 
-        return new OrderResource($order->refresh()->load('items', 'events'));
+        return new OrderResource($order->refresh()->load('items.product:id,slug', 'events'));
     }
 
     /**

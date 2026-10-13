@@ -17,7 +17,7 @@ class OrderController extends Controller
     {
         return OrderResource::collection(
             Order::forCustomer($request->user())
-                ->with('items')
+                ->with('items.product:id,slug')
                 ->latest('id')
                 ->paginate(10)
         );
@@ -27,7 +27,7 @@ class OrderController extends Controller
     {
         $this->ensureOwner($request, $order);
 
-        return new OrderResource($order->load('items', 'events'));
+        return new OrderResource($order->load('items.product:id,slug', 'events'));
     }
 
     public function cancel(Request $request, Order $order, OrderManager $orders): OrderResource
@@ -37,7 +37,7 @@ class OrderController extends Controller
 
         $orders->cancel($order, $data['reason'] ?? 'Cancelled by customer', $request->user());
 
-        return new OrderResource($order->load('items', 'events'));
+        return new OrderResource($order->load('items.product:id,slug', 'events'));
     }
 
     public function requestReturn(Request $request, Order $order, OrderManager $orders): OrderResource
@@ -47,7 +47,7 @@ class OrderController extends Controller
 
         $orders->requestReturn($order, $data['reason'], $request->user());
 
-        return new OrderResource($order->load('items', 'events'));
+        return new OrderResource($order->load('items.product:id,slug', 'events'));
     }
 
     /**

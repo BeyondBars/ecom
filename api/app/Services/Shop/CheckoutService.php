@@ -118,7 +118,7 @@ class CheckoutService
             $this->sendOrderPlacedNotifications($order);
         }
 
-        return $order->load('items', 'events');
+        return $order->load('items.product:id,slug', 'events');
     }
 
     public function sendOrderPlacedNotifications(Order $order): void
