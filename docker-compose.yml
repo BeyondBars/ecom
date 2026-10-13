@@ -10,8 +10,8 @@ services:
     volumes:
       - dbdata:/var/lib/mysql
     environment:
-      MYSQL_DATABASE: invoice
-      MYSQL_USER: invoice
+      MYSQL_DATABASE: ecom
+      MYSQL_USER: ecom
       MYSQL_PASSWORD: secret
       MYSQL_ROOT_PASSWORD: secret
     command: ['--innodb_flush_log_at_trx_commit=2']
@@ -45,6 +45,19 @@ services:
       CONTAINER_ROLE: queue
     user: ubuntu
     profiles: ["queue"]
+
+  # Runs scheduled jobs every minute (e.g. orders:release-unpaid puts stock from abandoned
+  # online payments back on sale).
+  scheduler:
+    build:
+      context: ./api
+    depends_on:
+      - fpm
+    volumes:
+      - ./api:/var/www
+    environment:
+      CONTAINER_ROLE: scheduler
+    user: ubuntu
 
   # Nginx in front of FPM: the API is served on http://localhost:8000
   api:
