@@ -37,6 +37,16 @@ class Product extends Model
         'status' => 'draft',
     ];
 
+    protected static function booted(): void
+    {
+        // Back in stock: email everyone who asked to be told
+        static::updated(function (Product $product) {
+            if ($product->wasChanged('stock') && (int) $product->getOriginal('stock') <= 0 && $product->stock > 0) {
+                app(\App\Services\Shop\StockAlertNotifier::class)->notify($product);
+            }
+        });
+    }
+
     protected function casts(): array
     {
         return [
@@ -77,6 +87,11 @@ class Product extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function stockAlerts(): HasMany
+    {
+        return $this->hasMany(StockAlert::class);
     }
 
     /*

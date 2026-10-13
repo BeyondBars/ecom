@@ -31,6 +31,11 @@ return [
         'cod_enabled' => true,
         'cod_max_order_total' => 20000,
         'return_window_days' => 30,
+        'instagram_url' => null,
+        'facebook_url' => null,
+        'youtube_url' => null,
+        'twitter_url' => null,
+        'announcement' => 'Free shipping on orders over ₹999',
     ],
 
     'razorpay' => [

@@ -167,9 +167,8 @@ class Order extends Model
     public function restock(): void
     {
         foreach ($this->items as $item) {
-            if ($item->product_id) {
-                Product::whereKey($item->product_id)->increment('stock', $item->quantity);
-            }
+            // Through the model so "back in stock" alerts fire
+            Product::find($item->product_id)?->increment('stock', $item->quantity);
         }
     }
 

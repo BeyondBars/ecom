@@ -13,5 +13,8 @@ class DatabaseSeeder extends BaseSeeder
 
         static::superAdminUser();
         static::standardUser();
+
+        // Demo shop catalogue, coupons, banners and a blog post
+        (new ShopSeeder)->run(static::superAdminUser());
     }
 }

@@ -4,7 +4,8 @@ namespace App\Providers;
 
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\User;
+use App\Models\Product;
+use App\Notifications\Shop\BackInStockNotification;
 use App\Notifications\Shop\NewOrderNotification;
 use App\Notifications\Shop\OrderPlacedNotification;
 use App\Notifications\Shop\OrderStatusNotification;
@@ -57,6 +58,15 @@ class ShopServiceProvider extends ServiceProvider
             triggeredBy: 'order.placed',
             description: 'Alerts staff who manage orders that a new order is ready to pack.',
             sample: fn () => new NewOrderNotification(static::sampleOrder()),
+        ));
+
+        $templates->register(new EmailTemplate(
+            key: 'back_in_stock',
+            name: 'Back in Stock',
+            type: EmailTemplateType::Transactional,
+            triggeredBy: 'product.restocked',
+            description: 'Sent to shoppers who asked to be told when a sold-out product is available again.',
+            sample: fn () => new BackInStockNotification(new Product(['name' => 'Floral Print Maxi Dress', 'slug' => 'floral-print-maxi-dress', 'price' => 1499])),
         ));
 
         foreach (OrderStatusNotification::MESSAGES as $event => [$subject]) {
